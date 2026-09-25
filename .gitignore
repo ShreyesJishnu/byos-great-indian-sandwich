@@ -1,0 +1,7 @@
+# Internal — never publish. Carries vendor commercials and evaluation posture.
+PRODUCT.md
+DESIGN.md
+.impeccable/
+byos-qr.png
+*.presnap.*
+.DS_Store

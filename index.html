@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ED1C24">
+<title>The Great Indian Sandwich</title>
+<link rel="preload" href="fonts/MomentsText-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/MomentsDisplay-700.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* ============================================================================
+   DR. OETKER BASE  +  GREAT INDIAN SANDWICH CAMPAIGN SKIN
+   Architecture (spec S10 move 9): :root carries the corporate Dr. Oetker system
+   verbatim. `.gis` on the app wrapper re-declares ONLY the campaign-owned
+   custom properties. Delete the class and the page reverts to corporate.
+   ============================================================================ */
+
+/* ---- fonts (spec S13.2, verbatim mapping) ---- */
+@font-face{font-family:"MomentsDisplay";font-style:normal;font-weight:700;font-display:swap;
+  src:url("fonts/MomentsDisplay-700.woff2") format("woff2")}
+@font-face{font-family:"MomentsDisplay";font-style:normal;font-weight:500;font-display:swap;
+  src:url("fonts/MomentsDisplay-500.woff2") format("woff2")}
+@font-face{font-family:"MomentsText";font-style:normal;font-weight:400;font-display:swap;
+  src:url("fonts/MomentsText-400.woff2") format("woff2")}
+@font-face{font-family:"AugustScript";font-style:normal;font-weight:400;font-display:swap;
+  src:url("fonts/AugustScript-400.woff2") format("woff2")}
+/* metric-matched local-Arial fallbacks (spec S2.2) - stop the swap reflow */
+@font-face{font-family:"MomentsDisplay Fallback";src:local("Arial");
+  ascent-override:115.99%;descent-override:29.97%;line-gap-override:0%;size-adjust:82.07%}
+@font-face{font-family:"MomentsText Fallback";src:local("Arial");
+  ascent-override:95.64%;descent-override:24.44%;line-gap-override:0%;size-adjust:99.44%}
+@font-face{font-family:"AugustScript Fallback";src:local("Arial");
+  ascent-override:118.23%;descent-override:48.09%;line-gap-override:0%;size-adjust:82.97%}
+
+/* ============ BASE: the corporate Dr. Oetker system ============ */
+:root{
+  --font-primary:'MomentsDisplay','MomentsDisplay Fallback',Arial,sans-serif;
+  --font-neutral:'MomentsText','MomentsText Fallback',Arial,sans-serif;
+  --font-secondary:'AugustScript','AugustScript Fallback',Arial,cursive;
+
+  --primary:#A45A2A;        /* terracotta - THE interactive colour, never campaign-owned */
+  --primary-ink:#FFFFFF;    /* 5.15:1 on terracotta */
+  --darkgray:#292B29;       /* all body + heading text */
+  --gray-500:#5A5E5A;       /* secondary text */
+  --white:#FFFFFF;
+  --cream:#EFDBB2;          /* hero wash + recipe card footer */
+  --gold:#E1B87F;           /* alternating card footer */
+  --beige:#F7E9D5;          /* footer band */
+  --coolgray:#F4F5F4;       /* category card footer */
+  --paper:#FDF9F4;          /* page body (bg-lightBrown). terracotta clears 4.5:1 here */
+  --sage:#BBC4BA;           /* hairlines */
+  --curve-line:#D4DED3;     /* curve strokes, table rules */
+  --hairline:#E8EBE8;
+
+  /* campaign hooks, neutral at base. .gis overrides these and nothing else. */
+  --campaign:#A45A2A;
+  --campaign-ink:#FFFFFF;
+  --hero-fill:#EFDBB2;
+  --hero-ink:#292B29;
+
+  --r-card:16px; --r-pill:100px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --ease-out:cubic-bezier(0,0,.2,1);
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+}
+
+/* ============ SKIN: The Great Indian Sandwich ============
+   Colour temperature comes from the jar. Nothing structural moves. ~70/30
+   neutrals to red: red is the hero curve, the seal and the confirmation only. */
+.gis{
+  --campaign:#ED1C24;        /* FunFoods pack red */
+  --campaign-ink:#FFFFFF;    /* 4.38:1 - LEGAL ONLY at >=19px/700. Enforced below. */
+  --hero-fill:#ED1C24;
+  --hero-ink:#FFFFFF;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--darkgray);
+  font:400 16px/1.5 var(--font-neutral);
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--cream);color:var(--darkgray)}
+:root{scrollbar-color:var(--sage) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--sage);border-radius:99px;border:3px solid var(--paper)}
+::-webkit-scrollbar-track{background:transparent}
+input{caret-color:var(--primary)}
+/* spec S11.5: terracotta focus ring, never Tailwind blue */
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px}
+:where(button,[role=button],input,label){touch-action:manipulation}
+:where(button,[role=button]){cursor:pointer}
+:where(button):disabled{cursor:not-allowed}
+img{max-width:100%;display:block}
+
+/* ============ shell ============ */
+.app{max-width:440px;margin:0 auto;min-height:100dvh;background:var(--paper);
+     display:flex;flex-direction:column;position:relative;overflow-x:clip}
+/* corporate header: white, one 1px sage hairline expressed as a shadow (spec S1.5) */
+.bar{position:sticky;top:0;z-index:20;background:var(--white);
+     padding:calc(env(safe-area-inset-top) + 10px) var(--s4) 10px;
+     display:flex;align-items:center;gap:var(--s3);
+     box-shadow:var(--sage) 0 1px 0}
+.bar img{width:78px;height:51px;object-fit:contain;flex:0 0 auto}
+.bar b{font:400 12px/16px var(--font-neutral);letter-spacing:1.8px;text-transform:uppercase;
+       color:var(--gray-500)}
+main{flex:1;padding:var(--s5) var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
+main:has(>.hero){padding-top:0}
+/* full-bleed children of main escape the 16px gutter */
+.bleed{margin-inline:calc(var(--s4) * -1)}
+
+/* ============ THE CURVE (spec S9.1) ============
+   (c) clip-path for full-bleed colour/image blocks. The clipPath id is swapped
+   at 768px because a fixed proportional arc reads too deep on a narrow screen. */
+.curve-b{clip-path:url(#curve-mask-bottom-mobile)}
+.curve-deep{clip-path:url(#curve-mask-bottom-desktop)}
+@media (min-width:768px){
+  .curve-b{clip-path:url(#curve-mask-bottom-desktop)}
+}
+/* (a) the viewBox="0 0 624 28" arc that sits on the top edge of a card footer.
+   Deliberately wider than the card so its own rounded corners fall outside. */
+.arc{position:absolute;bottom:99%;left:0;width:100%;height:16px;
+     display:block;pointer-events:none}
+.arc path{fill:var(--arcfill,var(--cream))}
+
+/* ============ type (spec S2.3 - MomentsDisplay 700 for h1/h2 only,
+   500 for card titles + control labels, MomentsText 400 for all else.
+   NO weight 300, NO 600, NO bold body - those files do not exist.) ============ */
+h1,h2{font-family:var(--font-primary);font-weight:700;color:var(--darkgray);margin:0 0 var(--s2);
+      text-wrap:balance}
+h1{font-size:28px;line-height:34px}
+h2{font-size:28px;line-height:34px}
+h1:focus{outline:none}
+h1.display{font-size:44px;line-height:50px;margin:0 0 var(--s3)}
+h1.on-hero,h2.on-hero{color:var(--hero-ink)}
+@media (min-width:768px){
+  h1,h2{font-size:46px;line-height:52px}
+  h1.display{font-size:72px;line-height:80px}
+}
+/* AugustScript: exactly once per site, 72px, cream, over an image (spec S2.4) */
+.august{font-family:var(--font-secondary);font-weight:400;font-size:44px;line-height:30px;
+        color:var(--cream);margin:0}
+@media (min-width:768px){.august{font-size:72px;line-height:72px}}
+
+.lede{font-size:16px;line-height:24px;color:var(--darkgray);margin:0 0 var(--s5);max-width:40ch}
+@media (min-width:768px){.lede{font-size:20px;line-height:30px}}
+/* eyebrow / meta. spec S11.5: no opacity:.7 on anything load-bearing. */
+.meta{font-size:14px;line-height:20px;letter-spacing:1.4px;text-transform:uppercase;
+      color:var(--gray-500);margin:0}
+.sub{font-size:16px;line-height:24px;color:var(--gray-500);margin:0}
+
+/* ============ progress ============ */
+.prog{display:flex;gap:var(--s1);padding:var(--s3) var(--s4) 0;background:var(--white)}
+.prog[hidden]{display:none}
+.prog i{flex:1;height:4px;border-radius:99px;background:var(--hairline);overflow:hidden;position:relative}
+.prog i::after{content:"";position:absolute;inset:0;background:var(--primary);
+  transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.prog i.on::after{transform:scaleX(1)}
+
+/* ============ sandwich stack ============ */
+/*
+  2.5D "clay illustration" layer system. Ingredients are squashed-ellipse
+  "pucks": a radial-gradient dome plus hard-edged stacked box-shadows faking an
+  extruded side wall, overlapped via column-reverse + negative margins, sitting
+  on a board that has its own edge thickness. No 3D transforms, no images.
+
+  Scaling contract: the artwork is authored ONCE in a canonical 220x210 box and
+  resized only by transform:scale() on .sw. box-shadow, border-radius and
+  gradients all scale under a CSS transform, so the 52px thumbnail is a
+  pixel-faithful copy of the hero, never a re-layout.
+*/
+.stage{display:grid;place-items:center;padding:var(--s5) 0 var(--s6);
+  background:radial-gradient(60% 70% at 50% 62%, var(--beige) 0%, rgba(247,233,213,0) 72%)}
+
+.sw,.sw *{box-sizing:border-box}
+.sw{--s:1;position:relative;width:220px;height:210px;
+  flex-shrink:0;  /* every child is position:absolute, so this box has no
+    intrinsic width; a flex parent (.thumb, .row, .preset) would otherwise be
+    free to shrink the real layout width toward 0 and break every left:50%
+    child. The canonical 220px must stay literal - only scale() may resize it. */
+  transform:scale(var(--s));transform-origin:50% 100%}
+/* 52px thumbnail: 52/220, parked on the bottom of its .thumb box */
+.sw.sm{position:absolute;left:50%;bottom:7px;--s:.2364;
+  transform:translateX(-50%) scale(var(--s))}
+
+/* ---------- board ---------- */
+.board{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+  width:210px;height:88px;border-radius:20% / 50%;
+  background:linear-gradient(150deg,#D89A52 0%,#BE7A3C 55%,#A4642E 100%);
+  box-shadow:0 6px 0 0 #8D5426, 0 11px 0 0 #74431C,
+             0 24px 20px -8px rgba(96,48,24,.32)}
+.board::after{content:"";position:absolute;top:16%;right:12%;width:3.6%;height:8%;
+  border-radius:50%;background:rgba(60,30,10,.35);
+  box-shadow:inset 0 1px 1px rgba(0,0,0,.45)}
+
+/* ---------- layer stack ---------- */
+.layers{position:absolute;left:50%;bottom:68px;transform:translateX(-50%);
+  width:100%;display:flex;flex-direction:column-reverse;align-items:center}
+.ly{display:none}
+.ly.on{display:block}
+
+/* ---------- THE DROP ----------
+   A newly picked layer falls onto the stack, squashes flat on impact and
+   settles through one small rebound. Two deliberate choices:
+
+   1. It animates the INDEPENDENT `translate` / `scale` properties, never
+      `transform`. The scattered veg and crunch pieces carry their own
+      `transform: rotate()`; an animation on `transform` wins the cascade and
+      would flatten every rotation for the length of the drop and, with a
+      forwards fill, permanently. translate/scale compose with transform
+      instead, so a tilted chip falls in still tilted.
+   2. Fill is `backwards`, not `both` - the delayed pieces hold their airborne
+      pose during their delay instead of flashing at rest first, and the
+      element's own declared transform comes back untouched at the end. */
+@keyframes drop{
+  0%  {translate:0 -38px;scale:.93 1.1;animation-timing-function:cubic-bezier(.45,0,.9,.55)}
+  55% {translate:0 0;scale:1.09 .72;animation-timing-function:cubic-bezier(0,0,.2,1)}
+  76% {translate:0 -5px;scale:.985 1.05}
+  100%{translate:0 0;scale:1}
+}
+/* a slab lands as one object; a scattered slot lands piece by piece, 55ms apart,
+   because several things arriving in quick succession reads as food and one
+   block appearing reads as a chart */
+.ly.drop:not(:has(i)){animation:drop .46s var(--ease) backwards}
+.ly.drop>i{animation:drop .4s var(--ease) backwards}
+.ly.drop>i:nth-child(2){animation-delay:55ms}
+.ly.drop>i:nth-child(3){animation-delay:110ms}
+.ly.drop>i:nth-child(4){animation-delay:165ms}
+.ly.drop>i:nth-child(5){animation-delay:220ms}
+.ly.drop>i:nth-child(6){animation-delay:275ms}
+/* the board takes the weight, timed to the impact frame at 55% of .46s */
+@keyframes takeweight{0%,100%{scale:1}45%{scale:1.012 .955}}
+.sw.impact .board{animation:takeweight .3s var(--ease) .2s}
+/* before the first pick the board reads as waiting: a ghost of the base slice.
+   ::before is the FIRST flex item of a column-reverse stack, i.e. the bottom
+   one, so it lands exactly where the base bread will - same 190x40, same -26px. */
+.sw.empty .layers::before{content:"";width:190px;height:40px;border-radius:50%;
+  border:2px dashed var(--sage);margin-bottom:-26px}
+
+/* generic "puck": squashed ellipse + extruded wall + soft contact shadow */
+.puck{position:relative;width:var(--w);height:var(--h);border-radius:50%;
+  background:radial-gradient(120% 140% at 32% 22%, var(--hi,rgba(255,255,255,.55)), transparent 60%),
+             var(--fill);
+  box-shadow:0 3px 0 0 var(--fill-dark), 0 6px 0 0 var(--fill-dark),
+             0 9px 0 0 var(--fill-dark), 0 15px 10px -6px rgba(20,10,5,.35)}
+
+/* ---------- bread ---------- */
+.breadB{--w:190px;--h:40px;margin-bottom:-26px;z-index:1}
+.breadT{--w:190px;--h:54px;margin-bottom:0;z-index:6}
+.breadT::before{content:"";position:absolute;inset:0;border-radius:50%;
+  border:5px solid var(--fill-dark);opacity:.5;
+  -webkit-mask:linear-gradient(#000,transparent 55%);mask:linear-gradient(#000,transparent 55%)}
+.breadB.white,.breadT.white{--fill:#f1dfb8;--fill-dark:#d8bd85;--hi:rgba(255,255,255,.7)}
+.breadB.multi,.breadT.multi{--fill:#a9743f;--fill-dark:#82531f;--hi:rgba(255,235,200,.35)}
+.breadB.sour,.breadT.sour{--fill:#d9ad63;--fill-dark:#b0813c;--hi:rgba(255,255,255,.5)}
+.breadB.pav,.breadT.pav{--fill:#f3e2be;--fill-dark:#e0c48b;--hi:rgba(255,255,255,.8)}
+
+/* ---------- mayo (thin drizzle) ---------- */
+/* 178px is wider than the 172px filling that lands on top of it, so the mayo's
+   rim survives step 3 instead of being swallowed. Width is safe to change:
+   only --h is coupled to the hand-tuned overlap margins. */
+.mayo{--w:190px;--h:14px;margin-bottom:-11px;z-index:2}
+.mayo::after{content:"";position:absolute;inset:15% 8%;border-radius:50%;opacity:.8;
+  background-image:repeating-linear-gradient(115deg, var(--drizzle) 0 3px, transparent 3px 12px)}
+/* original + garlic are near-white and used to vanish against cream bread and
+   the cream page. Legibility beats physical accuracy: both get a distinctly
+   darker --fill-dark (which drives the extrusion) plus a thin outer ring, so
+   the layer always shows an edge whatever sits above or below it. */
+.mayo.orig{--fill:#f4ecd2;--fill-dark:#b39a5c;--drizzle:#fffaf0}
+.mayo.burger{--fill:#f0d98a;--fill-dark:#cdb163;--drizzle:#fff3c4}
+.mayo.garlic{--fill:#eef2df;--fill-dark:#93a06a;--drizzle:#ffffff}
+.mayo.tandoori{--fill:#e07a3f;--fill-dark:#b0551f;--drizzle:#f7a35c}
+.mayo.orig,.mayo.garlic{box-shadow:
+  0 3px 0 0 var(--fill-dark), 0 6px 0 0 var(--fill-dark), 0 9px 0 0 var(--fill-dark),
+  0 0 0 2px rgba(70,55,20,.5), 0 15px 10px -6px rgba(20,10,5,.35)}
+
+/* ---------- filling (thick slab) ---------- */
+.fill{--w:172px;--h:32px;margin-bottom:-22px;z-index:3}
+.fill.aloo{--fill:#e8c15a;--fill-dark:#bd9636;--hi:rgba(255,255,240,.5)}
+.fill.paneer{--fill:#f5edd4;--fill-dark:#d7c99f;--hi:rgba(255,255,255,.7)}
+.fill.chicken{--fill:#d99a56;--fill-dark:#ab6f32;--hi:rgba(255,235,200,.45)}
+.fill.veggies{--fill:#d3763f;--fill-dark:#a8531f;--hi:rgba(255,220,180,.4)}
+
+/* ---------- veg (thin, multi-select, all four share one slot) ---------- */
+.vslot{position:relative;width:178px;height:20px;margin-bottom:-17px;z-index:4}
+.veg{position:absolute;inset:0;z-index:1}
+/* the full-width leaf paints UNDER the scattered pieces, so tomato/onion/
+   cucumber still read when lettuce is on */
+.veg.lettuce{z-index:0}
+.veg i{position:absolute;display:block}
+
+.veg.lettuce i{left:0;top:-3px;width:178px;height:24px;
+  border-radius:62% 38% 55% 45% / 48% 55% 45% 52%;
+  background:radial-gradient(120% 140% at 30% 20%, rgba(255,255,255,.4), transparent 60%),
+             linear-gradient(145deg,#8bcb52,#5fa233 70%);
+  box-shadow:0 3px 0 0 #3f7a22, 0 10px 8px -4px rgba(20,30,5,.35)}
+.veg.lettuce i::before{content:"";position:absolute;inset:-3px;border-radius:inherit;z-index:-1;
+  background:repeating-radial-gradient(circle at 50% 50%, transparent 0 6px, rgba(95,162,51,.9) 7px 8px);
+  -webkit-mask:radial-gradient(closest-side, transparent 92%, #000 94%);
+  mask:radial-gradient(closest-side, transparent 92%, #000 94%)}
+
+.veg.tomato i{left:51px;top:0;width:34px;height:16px;border-radius:50%;
+  background:radial-gradient(120% 140% at 30% 25%, rgba(255,255,255,.75), transparent 55%),
+             radial-gradient(circle at 50% 50%, #f2a5a0 0 30%, #e2453a 32% 78%, #b52c24 80%);
+  box-shadow:0 2px 0 0 #922019, 0 5px 4px -2px rgba(20,0,0,.4)}
+.veg.tomato i+i{left:92px;top:4px;width:29px;height:14px}
+
+.veg.onion i{left:95px;top:-2px;width:30px;height:12px;border-radius:50%;
+  background:repeating-radial-gradient(circle at 50% 50%, #f4e7ef 0 2px, #d7a9c6 2px 4px);
+  box-shadow:0 2px 0 0 #b787a8, 0 4px 3px -2px rgba(30,10,20,.3)}
+
+.veg.cucumber i{left:40px;top:2px;width:26px;height:12px;border-radius:50%;
+  background:radial-gradient(120% 140% at 35% 25%, rgba(255,255,255,.6), transparent 60%),
+             radial-gradient(circle at 50% 50%, #cdeab0 0 55%, #6fae4c 60% 82%, #4c8a34 84%);
+  box-shadow:0 2px 0 0 #3c7028, 0 4px 3px -2px rgba(10,20,0,.3)}
+
+/* ---------- crunch (irregular/scattered, multi-select) ---------- */
+.cslot{position:relative;width:150px;height:10px;margin-bottom:-8px;z-index:5}
+.crunch{position:absolute;inset:0}
+.crunch i{position:absolute;display:block;background:var(--fill);
+  border-radius:40% 60% 55% 45% / 55% 45% 55% 45%;
+  box-shadow:0 1.5px 0 0 var(--fill-dark), 0 3px 3px -1px rgba(20,10,0,.3)}
+
+.crunch.chips i{--fill:#e8c968;--fill-dark:#bd9c3d;width:16px;height:8px}
+.crunch.chips i:nth-child(1){left:20px;top:0;transform:rotate(-8deg)}
+.crunch.chips i:nth-child(2){left:55px;top:4px;transform:rotate(10deg)}
+.crunch.chips i:nth-child(3){left:90px;top:-2px;transform:rotate(-4deg)}
+.crunch.chips i:nth-child(4){left:118px;top:3px;transform:rotate(14deg)}
+
+.crunch.nachos i{--fill:#e0a94c;--fill-dark:#b47f2c;width:14px;height:10px;
+  border-radius:20% 20% 60% 60% / 20% 20% 70% 70%}
+.crunch.nachos i:nth-child(1){left:12px;top:2px;transform:rotate(20deg)}
+.crunch.nachos i:nth-child(2){left:50px;top:-3px;transform:rotate(-15deg)}
+.crunch.nachos i:nth-child(3){left:84px;top:3px;transform:rotate(5deg)}
+.crunch.nachos i:nth-child(4){left:115px;top:-1px;transform:rotate(-25deg)}
+
+.crunch.friedonion i{--fill:#c9852f;--fill-dark:#9c621d;width:10px;height:5px;border-radius:50%}
+.crunch.friedonion i:nth-child(1){left:18px;top:3px}
+.crunch.friedonion i:nth-child(2){left:40px;top:-2px}
+.crunch.friedonion i:nth-child(3){left:66px;top:4px}
+.crunch.friedonion i:nth-child(4){left:92px;top:-1px}
+.crunch.friedonion i:nth-child(5){left:118px;top:2px}
+
+.crunch.namkeen i{--fill:#d9b24a;--fill-dark:#ac8a2f;width:6px;height:6px;border-radius:50%}
+.crunch.namkeen i:nth-child(1){left:22px;top:2px}
+.crunch.namkeen i:nth-child(2){left:38px;top:-3px}
+.crunch.namkeen i:nth-child(3){left:60px;top:4px}
+.crunch.namkeen i:nth-child(4){left:82px;top:-2px}
+.crunch.namkeen i:nth-child(5){left:100px;top:3px}
+.crunch.namkeen i:nth-child(6){left:122px;top:0}
+
+/* ============ THE TWO-PART CTA (spec S3.1) ============
+   110px box so the pill can be pulled up -50px and straddle the block above.
+   Pill 50px R100 terracotta; ring 40px 1px white inset 5px, pointer-events:none.
+   Nobody else's buttons look like this. */
+.cta{display:flex;align-items:center;justify-content:center;
+     position:relative;width:100%;max-width:250px;height:110px;min-width:150px;
+     border:0;background:none;padding:0;color:inherit;font:inherit;
+     -webkit-appearance:none;appearance:none}
+.cta .ring{position:absolute;z-index:2;pointer-events:none;
+  border:1px solid var(--primary-ink);border-radius:var(--r-pill);
+  width:calc(100% - 10px);height:40px;top:50%;left:50%;transform:translate(-50%,-50%)}
+.cta .pill{display:block;position:relative;width:100%;height:50px;line-height:50px;text-align:center;
+  background:var(--primary);color:var(--primary-ink);border-radius:var(--r-pill);
+  text-transform:uppercase;font-family:var(--font-neutral);font-weight:400;
+  font-size:12px;letter-spacing:1.8px;
+  transition:background .15s var(--ease)}
+@media (min-width:768px){.cta .pill{font-size:14px;letter-spacing:2.1px}}
+@media (hover:hover){.cta:hover .pill{background:#8E4D24}}
+.cta:disabled .pill{background:var(--hairline);color:var(--gray-500)}
+.cta:disabled .ring{border-color:var(--gray-500)}
+.cta .spin{display:inline-block;vertical-align:-3px;margin-right:6px;
+  width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+  border-radius:99px;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* .mt-cta: the negative-margin overlap that is part of the look, not a hack */
+.mt-cta{margin-top:-50px}
+.ctas{display:flex;flex-direction:column;align-items:center;gap:0}
+
+/* ============ text link - the growing underline (spec S3.3).
+   The system has NO outline/ghost button; this IS the secondary action.
+   44px min target because we fix rather than inherit the site's a11y debt. ============ */
+.tlink{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);
+  min-height:44px;padding:0 var(--s2);border:0;background:none;color:var(--darkgray);
+  font-family:var(--font-neutral);font-weight:400;font-size:16px;line-height:1;
+  letter-spacing:1.6px;text-transform:uppercase}
+.tlink::after{content:"";position:absolute;display:block;width:0;left:0;bottom:8px;
+  border-bottom:1px solid var(--primary);transition:.5s}
+.tlink:hover::after,.tlink:focus-visible::after{width:98%;left:1%}
+
+/* ============ THE SEAL (spec S9.2) - 8-lobed mark ============ */
+.seal{position:relative;width:var(--sz,54px);height:var(--sz,54px);flex:0 0 auto;
+      display:flex;align-items:center;justify-content:center}
+.seal svg{position:absolute;top:0;left:0;width:100%;height:100%}
+.seal .disc{fill:var(--disc,var(--campaign))}
+.seal .lobe{fill:none;stroke:var(--lobe,#fff);stroke-width:var(--sw,1);stroke-linejoin:round}
+.seal b{position:relative;z-index:1;font-family:var(--font-primary);font-weight:700;
+        color:var(--lobe,#fff);font-size:22px;line-height:1;text-align:center}
+.seal.lg{--sz:84px;--sw:2}
+.seal.lg b{font-size:19px;line-height:23px;letter-spacing:.5px;text-transform:uppercase}
+
+/* mechanic: seal-numbered steps (spec S10 move 8) */
+.mech{position:relative;--arcfill:var(--campaign);background:var(--campaign);color:#fff;
+  padding:var(--s6) var(--s4) var(--s7);margin-top:var(--s7)}
+.mech h2{color:#fff}
+.mech ol{list-style:none;margin:var(--s5) 0 0;padding:0;display:flex;flex-direction:column;gap:var(--s4)}
+.mech li{display:flex;align-items:center;gap:var(--s4)}
+/* inside a red block the seal is line art only - the "numbered recipe step"
+   variant of the mark (spec S9.2 case 1), not the filled badge. */
+.mech .seal{--disc:transparent}
+/* white on #ED1C24 is 4.38:1 -> legal only at >=19px/700. This is 19px/700. */
+.mech li p{margin:0;font-family:var(--font-primary);font-weight:700;font-size:19px;
+  line-height:26px;color:#fff;text-wrap:balance}
+
+/* ============ CARD GRAMMAR (spec S3.6/S3.7) ============
+   Image or packshot on top, warm footer below, arc on the footer's top edge,
+   footer fill alternating cream/gold across the grid. Zero shadows. */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4) var(--s3)}
+/* flex column + flex:1 on the footer so every tile in a grid row ends at the
+   same baseline when one name wraps to two lines and its neighbours do not */
+.opt{position:relative;border:0;background:none;padding:0;text-align:left;color:var(--darkgray);
+  border-radius:var(--r-card);overflow:hidden;display:flex;flex-direction:column;
+  transition:transform .4s var(--ease)}
+/* a flat swatch carries no information beyond its colour, so it is sized to be
+   recognisable and no larger: 84px, against 120px for the packshot step, whose
+   jars are the one place real product art appears and do deserve the room. */
+.opt .swatch{flex:0 0 auto;height:84px;border-radius:var(--r-card) var(--r-card) 0 0;position:relative;
+  background:var(--swatch);display:grid;place-items:center;overflow:hidden}
+.grid.packs .opt .swatch{height:120px}
+@media (min-width:481px){.grid:not(.packs) .opt .swatch{height:110px}}
+.opt .swatch img{height:116px;width:auto;object-fit:contain;
+  transition:transform .4s var(--ease)}
+@media (hover:hover){.opt:hover .swatch img{transform:scale(.88)}}
+.opt .foot{display:block;position:relative;background:var(--arcfill);padding:8px 12px 12px;
+  border-radius:0 0 var(--r-card) var(--r-card);min-height:44px;flex:1 1 auto}
+.opt .name{display:block;font-family:var(--font-primary);font-weight:500;font-size:20px;
+  line-height:26px;letter-spacing:.6px;color:var(--darkgray)}
+.opt .tick{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:99px;
+  background:var(--campaign);color:#fff;display:none;place-items:center;z-index:3}
+.opt[aria-pressed=true] .tick{display:grid}
+.opt[aria-pressed=true]{outline:2px solid var(--primary);outline-offset:-2px}
+.opt:active{transform:scale(.985)}
+/* alternating footer fills across the grid, the way the live listings do */
+.grid .opt:nth-child(odd){--arcfill:var(--cream)}
+.grid .opt:nth-child(even){--arcfill:var(--gold)}
+
+/* ============ presets - recipe-card variant, real dish photography ============ */
+.presets{display:flex;gap:var(--s3);overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--s4);
+  margin:0 calc(var(--s4) * -1);padding:var(--s2) var(--s4) var(--s5);scrollbar-width:none}
+.presets::-webkit-scrollbar{display:none}
+.preset{scroll-snap-align:start;flex:0 0 172px;border:0;background:none;padding:0;
+  border-radius:var(--r-card);overflow:hidden;text-align:left;color:var(--darkgray);
+  transition:transform .12s var(--ease)}
+.preset .shot{display:block;position:relative;height:120px;overflow:hidden;
+  border-radius:var(--r-card) var(--r-card) 0 0;background:var(--cream)}
+.preset .shot img{width:100%;height:100%;object-fit:cover;
+  transition:transform .4s var(--ease)}
+.preset .thumb{display:block;position:absolute;right:6px;bottom:6px;width:52px;height:52px;border-radius:10px;
+  background:rgba(253,249,244,.94);overflow:hidden}
+@media (hover:hover){.preset:hover .shot img{transform:scale(1.06)}}
+.preset .foot{display:block;position:relative;background:var(--arcfill);padding:10px 14px 18px;min-height:76px;
+  border-radius:0 0 var(--r-card) var(--r-card)}
+.preset b{display:block;font-family:var(--font-primary);font-weight:500;font-size:20px;
+  line-height:26px;letter-spacing:.6px}
+.preset span{display:block;font-size:14px;line-height:20px;color:var(--darkgray);margin-top:2px}
+.preset:active{transform:scale(.97)}
+.presets .preset:nth-child(odd){--arcfill:var(--cream)}
+.presets .preset:nth-child(even){--arcfill:var(--gold)}
+
+/* ============ hero blocks ============ */
+.hero{position:relative;z-index:1;background:var(--cream);overflow:hidden}
+.hero img{width:100%;height:230px;object-fit:cover}
+/* MEASURED: cream #EFDBB2 over this photograph, even behind a 33% scrim, is
+   2.13:1 average and 1.08:1 at its worst pixel. AugustScript therefore sits on
+   the campaign red field instead of on the photo - 3.22:1, and large text.
+   It is still the one script line per page the spec allows (S2.4). */
+.heroblock .august{margin-bottom:var(--s2)}
+.heroblock{background:var(--hero-fill);color:var(--hero-ink);padding:var(--s6) var(--s4) var(--s7)}
+.heroblock .stage{background:none}
+.stageband{background:var(--cream);padding:var(--s2) 0 var(--s4);display:grid;place-items:center}
+.stageband .stage{background:none;padding:0}
+/* The build preview is scaled down so the board and the first row of options
+   share one 375x812 screen. Only --s ever resizes the artwork (the scaling
+   contract holds); transform-origin is 50% 100%, so scale() frees 210*(1-.8)
+   = 42px of empty box at the TOP and the negative margin reclaims exactly that
+   - it is not an overlap of one block onto another. */
+.stageband .sw{--s:.8;margin-top:-42px}
+
+/* ============ cards / list ============ */
+.card{position:relative;background:var(--white);border-radius:var(--r-card);
+  border:1px solid var(--sage);padding:var(--s5) var(--s4) var(--s5)}
+.code{font-family:var(--font-neutral);font-size:14px;letter-spacing:2.1px;
+  text-transform:uppercase;color:var(--darkgray)}
+.tags{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s4);justify-content:center}
+.tag{background:var(--white);border:1px solid var(--sage);border-radius:var(--r-pill);
+  padding:6px 14px;font-size:14px;line-height:20px;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--darkgray)}
+.note{background:var(--beige);border-radius:var(--r-card);
+  padding:var(--s4);font-size:16px;line-height:24px;color:var(--darkgray);margin-top:var(--s4);
+  display:flex;gap:var(--s3)}
+.note svg{flex:0 0 auto;margin-top:3px}
+.note b{font-family:var(--font-primary);font-weight:500}
+
+.list{position:relative;background:var(--coolgray);border-radius:0 0 var(--r-card) var(--r-card);
+  --arcfill:var(--coolgray);padding:var(--s2) var(--s4) var(--s4);margin-top:28px}
+.row{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0;
+  border-bottom:1px solid var(--curve-line)}
+.row:last-child{border-bottom:0}
+.rank{width:26px;text-align:center;font-family:var(--font-primary);font-weight:500;font-size:20px;
+  line-height:1;color:var(--gray-500)}
+.row.top3 .rank{color:var(--primary)}
+.thumb{position:relative;flex:0 0 52px;width:52px;height:52px;border-radius:10px;
+  background:var(--white);border:1px solid var(--sage);overflow:hidden}
+.who{flex:1;min-width:0}
+.who b{font-family:var(--font-primary);font-weight:500;font-size:20px;line-height:26px;
+  letter-spacing:.6px;color:var(--darkgray);display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.who span{display:block;font-size:14px;line-height:20px;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--gray-500)}
+.vote{min-width:56px;min-height:50px;border-radius:var(--r-pill);border:1px solid var(--primary);
+  background:var(--white);color:var(--primary);padding:6px 10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  transition:background .15s var(--ease),border-color .15s var(--ease),transform .12s var(--ease)}
+.vote .n{font-family:var(--font-neutral);font-size:14px;letter-spacing:1.4px}
+@media (hover:hover){.vote:hover{background:var(--cream)}}
+.vote:active:not(:disabled){transform:scale(.94)}
+.vote:disabled{border-color:var(--sage);color:var(--gray-500)}
+.vote.mine{background:var(--primary);border-color:var(--primary);color:#fff}
+
+.tabs{display:flex;gap:var(--s2);background:var(--white);border:1px solid var(--sage);padding:4px;
+  border-radius:var(--r-pill);margin:var(--s4) 0 0}
+.tabs button{flex:1;min-height:44px;border:0;background:transparent;border-radius:var(--r-pill);
+  font-family:var(--font-neutral);font-size:12px;letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--gray-500);transition:background .15s var(--ease),color .15s var(--ease)}
+.tabs button[aria-selected=true]{background:var(--primary);color:#fff}
+
+/* ============ form - pill input, a documented extension (spec S11.4) ============ */
+.field{margin-top:var(--s5)}
+.field label{display:block;font-family:var(--font-primary);font-weight:500;font-size:20px;
+  line-height:26px;margin-bottom:var(--s2)}
+.field input{width:100%;min-height:52px;padding:0 var(--s5);border-radius:var(--r-pill);
+  border:1px solid var(--sage);background:var(--white);
+  font:400 16px var(--font-neutral);color:var(--darkgray)}
+.field input::placeholder{color:var(--gray-500)}
+.field input:focus{border-color:var(--primary);outline:2px solid var(--primary);outline-offset:1px}
+.field input[aria-invalid=true]{border-color:var(--campaign);border-width:2px}
+.help{font-size:14px;line-height:20px;color:var(--gray-500);margin:var(--s2) 0 0;padding-left:var(--s5)}
+.err{font-size:14px;line-height:20px;color:#B3121A;margin:var(--s2) 0 0;padding-left:var(--s5);
+  display:flex;gap:var(--s2);align-items:center}
+
+.empty{text-align:center;padding:var(--s7) var(--s4);color:var(--gray-500)}
+.empty h2{font-size:24px;line-height:30px;font-weight:500;margin-bottom:var(--s2);color:var(--darkgray)}
+.center{text-align:center}
+.mt5{margin-top:var(--s5)}
+.stage.flush{padding-top:0}
+.stage.bare{padding:0 0 var(--s5);background:none}
+.meta.gap{margin-bottom:var(--s4)}
+.fine{display:block;text-align:center;color:var(--gray-500);font-size:14px;line-height:20px;
+  letter-spacing:1.4px;text-transform:uppercase;padding:var(--s5) var(--s4) 0}
+.sect{padding-top:var(--s6)}
+
+/* ============ scroll reveal (spec S8.3) - 10vh rise, 50/200/400/600/800 stagger ============ */
+@media (prefers-reduced-motion:no-preference){
+  .rv{opacity:0;transform:translateY(10vh);will-change:opacity,transform}
+  .rv.in{opacity:1;transform:none;
+    transition:opacity 600ms var(--ease-out) 50ms,transform 700ms var(--ease-out)}
+  .mech li,.presets .preset{transition:opacity 600ms var(--ease-out),transform 700ms var(--ease-out)}
+  .mech:not(.in) li,.sect:not(.in) .preset{opacity:0;transform:translateY(10vh)}
+  .mech.in li:nth-child(2),.sect.in .preset:nth-child(2){transition-delay:200ms}
+  .mech.in li:nth-child(3),.sect.in .preset:nth-child(3){transition-delay:400ms}
+  .mech.in li:nth-child(4),.sect.in .preset:nth-child(4){transition-delay:600ms}
+  .mech.in li:nth-child(5),.sect.in .preset:nth-child(5){transition-delay:800ms}
+}
+
+/* ============ responsive ============ */
+@media (min-width:481px){
+  .app{max-width:700px}
+  .hero img{height:300px}
+}
+@media (min-width:481px) and (max-width:1024px){
+  main:has(>.stageband){
+    display:grid;grid-template-columns:260px 1fr;column-gap:var(--s5);align-items:start;
+    grid-template-areas:"stage h1" "stage meta" "stage grid" "btns btns"}
+  main:has(>.stageband)>.stageband{grid-area:stage;align-self:center;margin:0;border-radius:var(--r-card)}
+  main:has(>.stageband)>h1{grid-area:h1;align-self:end}
+  main:has(>.stageband)>.meta{grid-area:meta}
+  main:has(>.stageband)>.grid{grid-area:grid}
+  main:has(>.stageband)>.ctas{grid-area:btns;margin-top:var(--s5)}
+}
+@media (min-width:1025px){
+  .app{max-width:1120px}
+  .hero img{height:420px}
+  main:has(>.field){max-width:520px;margin-inline:auto}
+  main:has(>.card.center){max-width:620px;margin-inline:auto}
+  main:has(>.list){max-width:800px;margin-inline:auto}
+  main:has(>.stageband){
+    display:grid;grid-template-columns:380px 1fr;column-gap:var(--s7);align-items:start;
+    grid-template-areas:"stage h1" "stage meta" "stage grid" "stage btns"}
+  main:has(>.stageband)>.stageband{grid-area:stage;position:sticky;top:var(--s5);margin:0;
+    border-radius:var(--r-card);padding:var(--s5) 0 var(--s6)}
+  /* a 380px sticky panel has the room, so the stack goes back to full size */
+  .stageband .sw{--s:1;margin-top:0}
+  main:has(>.stageband)>h1{grid-area:h1;align-self:end}
+  main:has(>.stageband)>.meta{grid-area:meta}
+  main:has(>.stageband)>.grid{grid-area:grid;max-width:660px;grid-template-columns:repeat(4,1fr)}
+  main:has(>.stageband)>.ctas{grid-area:btns;align-items:flex-start;margin-top:var(--s5)}
+  .grid{grid-template-columns:repeat(4,1fr)}
+  .mech ol{flex-direction:row}
+  .mech li{flex:1}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<!-- THE CURVE, deployment (c): objectBoundingBox clip paths, verbatim from oetker.in <defs>.
+     Mobile and desktop variants; the class swaps id at 768px (spec S9.1c). -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+ <defs>
+  <clipPath id="curve-mask-bottom-mobile" clipPathUnits="objectBoundingBox">
+   <path d="M 0 0 H 1.0047 v 0.93 C 1.0047 0.93 0.7374 0.98 0.506 0.98 C 0.2673 0.98 0 0.93 0 0.93 V 0"/>
+  </clipPath>
+  <clipPath id="curve-mask-bottom-desktop" clipPathUnits="objectBoundingBox">
+   <path d="M 0 0 H 1 V 0.84 C 1 0.84 0.771 1 0.5 1 C 0.226 1 0 0.84 0 0.84 V 0"/>
+  </clipPath>
+ </defs>
+</svg>
+
+<div class="app gis">
+  <header class="bar">
+    <img src="assets/dr-oetker-logo.webp" width="78" height="51" alt="Dr. Oetker" fetchpriority="high">
+    <b>The Great Indian Sandwich</b>
+  </header>
+  <div class="prog" id="prog" hidden></div>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ============================ data ============================ */
+const STEPS=[
+ {key:'bread',title:'Your Bread',hint:'Choose one.',multi:false,opts:[
+   {id:'white',n:'White',c:'#F1DFB8'},{id:'multi',n:'Brown Multigrain',c:'#A9743F'},
+   {id:'sour',n:'Sourdough',c:'#D9AD63'},{id:'pav',n:'Pav',c:'#F3E2BE'}]},
+ /* the four real FunFoods SKUs, as transparent studio cutouts. A brand person
+    seeing their own jar here is worth more than any amount of colour work. */
+ {key:'mayo',title:'Your Mayo',hint:'Choose one.',multi:false,opts:[
+   {id:'orig',n:'Original',c:'#F4ECD2',img:'assets/mayo-orig.webp',alt:'Dr. Oetker FunFoods Veg Mayonnaise Original'},
+   {id:'burger',n:'Burger',c:'#F0D98A',img:'assets/mayo-burger.webp',alt:'Dr. Oetker FunFoods Veg Mayonnaise Burger'},
+   {id:'garlic',n:'Garlic',c:'#EEF2DF',img:'assets/mayo-garlic.webp',alt:'Dr. Oetker FunFoods Veg Garlic Mayonnaise'},
+   {id:'tandoori',n:'Tandoori',c:'#E07A3F',img:'assets/mayo-tandoori.webp',alt:'Dr. Oetker FunFoods Veg Mayonnaise Tandoori Masala'}]},
+ {key:'filling',title:'Your Filling',hint:'Choose one.',multi:false,opts:[
+   {id:'aloo',n:'Aloo',c:'#E8C15A'},{id:'paneer',n:'Paneer',c:'#F5EDD4'},
+   {id:'chicken',n:'Chicken',c:'#D99A56'},{id:'veggies',n:'Veggies',c:'#D3763F'}]},
+ {key:'veg',title:'The Veggies',hint:'Pick as many as you like.',multi:true,opts:[
+   {id:'onion',n:'Onion',c:'#D7A9C6'},{id:'tomato',n:'Tomato',c:'#E2453A'},
+   {id:'cucumber',n:'Cucumber',c:'#6FAE4C'},{id:'lettuce',n:'Lettuce',c:'#5FA233'}]},
+ {key:'crunch',title:'The Crunch',hint:'Pick as many as you like.',multi:true,opts:[
+   {id:'chips',n:'Chips',c:'#E8C968'},{id:'nachos',n:'Nachos',c:'#E0A94C'},
+   {id:'friedonion',n:'Fried Onion',c:'#C9852F'},{id:'namkeen',n:'Namkeen',c:'#D9B24A'}]}
+];
+const OPT={}; STEPS.forEach(s=>s.opts.forEach(o=>OPT[s.key+':'+o.id]=o));
+const NAMES={mayo:{orig:'Classic',burger:'Burger-Style',garlic:'Garlicky',tandoori:'Tandoori'},
+             filling:{aloo:'Aloo',paneer:'Paneer',chicken:'Chicken',veggies:'Veggie'},
+             tail:['Crunch','Stack','Special','Bomb','Deluxe']};
+/* mymuesli pattern: curated starting points so nobody faces a blank canvas */
+const PRESETS=[
+ {n:'Bombay Tandoori',d:'Sourdough, paneer and smoky tandoori mayo',shot:'assets/dish-tandoori.webp',
+  alt:'Tandoori paneer sandwich, grilled',
+  p:{bread:'sour',mayo:'tandoori',filling:'paneer',veg:['onion','tomato'],crunch:['nachos']}},
+ {n:'The Classic Club',d:'Triple-decker white bread, chicken and chips',shot:'assets/dish-club.webp',
+  alt:'Club sandwich, toasted white bread',
+  p:{bread:'white',mayo:'orig',filling:'chicken',veg:['lettuce','tomato','cucumber'],crunch:['chips']}},
+ {n:'Pav Masala',d:'Spiced aloo in bread/pav/kulcha with garlic mayo',shot:'assets/dish-pav.webp',
+  alt:'Vada pav, spiced potato fritter in a pav bun',
+  p:{bread:'pav',mayo:'garlic',filling:'aloo',veg:['onion'],crunch:['namkeen','friedonion']}}
+];
+const ICON={
+ check:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ share:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 15V4m0 0L8 8m4-4l4 4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14v4a2 2 0 002 2h10a2 2 0 002-2v-4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+ trophy:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v6a5 5 0 01-10 0V4z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M7 6H4.5a2.5 2.5 0 005 .5M17 6h2.5a2.5 2.5 0 01-5 .5M10 20h4M12 15v5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+ info:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.9"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+ alert:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5.5M12 16h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+ up:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V6m0 0l-6 6m6-6l6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ back:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M14 6l-6 6 6 6" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+};
+
+/* ============ brand devices, spec S9 ============ */
+/* (a) the card-top arc. One path, viewBox 0 0 624 28, deliberately wider than
+   the card so its own rounded corners fall outside the visible box. The fill
+   is inherited from --arcfill on the card, so it always matches the footer. */
+const ARC='<svg class="arc" viewBox="0 0 624 28" preserveAspectRatio="none" aria-hidden="true">'+
+ '<path d="M16 203C7.16344 203 0 195.837 0 187V21.351C0 21.351 143.433 -1.4836e-05 313.3 0C483.167 1.48361e-05 624 21.3511 624 21.3511V187C624 195.837 616.836 203 608 203H16Z"/></svg>';
+/* (b) the seal - 8-lobed rounded blob, 84px path scaled by viewBox */
+const SEALPATH='M44.7505 75.5465C43.0819 76.6453 40.9193 76.6453 39.2507 75.5465L35.8883 73.3323C34.6282 72.5024 33.1337 72.102 31.6275 72.1906L27.6084 72.4269C25.6139 72.5442 23.7411 71.4629 22.8454 69.677L21.0406 66.0783C20.3642 64.7295 19.2702 63.6355 17.9215 62.9591L14.3227 61.1543C12.5368 60.2586 11.4555 58.3858 11.5728 56.3913L11.8092 52.3723C11.8977 50.8661 11.4973 49.3716 10.6675 48.1114L8.45326 44.749C7.35444 43.0804 7.35444 40.9178 8.45326 39.2492L10.6675 35.8868C11.4973 34.6267 11.8977 33.1322 11.8092 31.626L11.5728 27.6069C11.4555 25.6125 12.5368 23.7396 14.3227 22.844L17.9215 21.0391C19.2702 20.3628 20.3642 19.2687 21.0406 17.92L22.8454 14.3212C23.7411 12.5353 25.6139 11.454 27.6084 11.5713L31.6275 11.8077C33.1337 11.8963 34.6282 11.4958 35.8883 10.666L39.2507 8.45179C40.9193 7.35297 43.0819 7.35297 44.7505 8.45179L48.1129 10.666C49.373 11.4958 50.8675 11.8963 52.3737 11.8077L56.3928 11.5713C58.3873 11.454 60.2601 12.5353 61.1558 14.3212L62.9606 17.92C63.637 19.2687 64.731 20.3628 66.0797 21.0391L69.6785 22.844C71.4644 23.7396 72.5457 25.6125 72.4284 27.6069L72.192 31.626C72.1034 33.1322 72.5039 34.6267 73.3337 35.8868L75.5479 39.2492C76.6468 40.9178 76.6468 43.0804 75.5479 44.749L73.3337 48.1114C72.5039 49.3716 72.1034 50.8661 72.192 52.3723L72.4284 56.3913C72.5457 58.3858 71.4644 60.2586 69.6785 61.1543L66.0797 62.9591C64.731 63.6355 63.637 64.7296 62.9606 66.0783L61.1558 69.677C60.2601 71.4629 58.3872 72.5442 56.3928 72.4269L52.3737 72.1906C50.8675 72.102 49.373 72.5024 48.1129 73.3323L44.7505 75.5465Z';
+const seal=(label,cls='')=>`<span class="seal ${cls}" aria-hidden="true">
+  <svg viewBox="0 0 84 84"><circle class="disc" cx="42" cy="42" r="38"/><path class="lobe" d="${SEALPATH}"/></svg>
+  <b>${label}</b></span>`;
+/* (c) the two-part CTA: 50px pill + 1px hairline ring inset 5px, in a 110px box */
+const cta=(label,attrs='')=>
+  `<button class="cta" ${attrs}><span class="ring"></span><span class="pill">${label}</span></button>`;
+/* (d) staggered 10vh scroll reveal (spec S8.3) */
+function reveal_on_scroll(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  const els=document.querySelectorAll('.rv'); if(!els.length) return;
+  const io=new IntersectionObserver((rows,o)=>rows.forEach(r=>{
+    if(r.isIntersecting){r.target.classList.add('in');o.unobserve(r.target)}
+  }),{rootMargin:'0px 0px -8% 0px'});
+  els.forEach(el=>io.observe(el));
+}
+
+/* ============================ state ============================ */
+let pick={bread:null,mayo:null,filling:null,veg:[],crunch:[]};
+let step=0, view='intro', tab='top', busy=false, nameErr='', animKey=null;
+const DB={
+ get e(){return JSON.parse(localStorage.getItem('gis_e')||'null')}, set e(v){localStorage.setItem('gis_e',JSON.stringify(v))},
+ get voted(){return localStorage.getItem('gis_voted')},          // ponytail: device-scoped; real build binds to verified phone
+ set voted(v){localStorage.setItem('gis_voted',v)},
+ get mine(){return localStorage.getItem('gis_mine')}, set mine(v){localStorage.setItem('gis_mine',v)}
+};
+const sig=p=>[p.bread,p.mayo,p.filling,[...p.veg].sort().join('-'),[...p.crunch].sort().join('-')].join('|');
+const title=p=>`${NAMES.mayo[p.mayo]} ${NAMES.filling[p.filling]} ${p.crunch.length?NAMES.tail[(p.crunch.length+p.veg.length)%NAMES.tail.length]:'Sandwich'}`;
+function code(s,p){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;
+  return '#'+((NAMES.mayo[p.mayo]||'X')[0]+(NAMES.filling[p.filling]||'X')[0]+'S').toUpperCase()+(h%1000+'').padStart(3,'0')}
+function seed(){
+  if(DB.e)return; const r=a=>a[Math.floor(Math.random()*a.length)], rows=[], seen=new Set(), used=new Set();
+  const handles=['aarav','diya','kabir','meera','rohan','ishaan','anaya','vihaan','sara','arjun','nisha','dev','tara','yash','mira','kiran','zoya','veer','anika','rhea','omkar','juhi','samar','neel'];
+  for(let i=0;i<24;i++){
+    const p={bread:r(STEPS[0].opts).id,mayo:r(STEPS[1].opts).id,filling:r(STEPS[2].opts).id,
+      veg:STEPS[3].opts.filter(()=>Math.random()<.5).map(o=>o.id),
+      crunch:STEPS[4].opts.filter(()=>Math.random()<.45).map(o=>o.id)};
+    const s=sig(p); if(seen.has(s))continue; seen.add(s);
+    let c=code(s,p); while(used.has(c)) c=c.slice(0,4)+String((+c.slice(4)+1)%1000).padStart(3,'0');
+    used.add(c);
+    rows.push({sig:s,pick:p,name:title(p),code:c,by:'@'+handles[i%handles.length],
+      votes:Math.floor(Math.random()*340)+20,at:Date.now()-i*36e5});
+  }
+  DB.e=rows;
+}
+seed();
+
+/* ============ Smart Mouth pattern: every layer in the DOM, toggled by display ============ */
+/* .layers is flex column-reverse, so SPEC runs BOTTOM of the sandwich first.
+   veg + crunch are scattered shapes rather than slabs, so all four variants of
+   each share one fixed-height slot and are absolutely positioned inside it;
+   the pieces themselves are <i> children. */
+const PIECES={lettuce:1,tomato:2,onion:1,cucumber:1,chips:4,nachos:4,friedonion:5,namkeen:6};
+function layerSpec(){
+  const L=[];
+  STEPS[0].opts.forEach(o=>L.push({cls:'puck breadB '+o.id,slot:'bread',id:o.id}));
+  STEPS[1].opts.forEach(o=>L.push({cls:'puck mayo '+o.id,slot:'mayo',id:o.id}));
+  STEPS[2].opts.forEach(o=>L.push({cls:'puck fill '+o.id,slot:'filling',id:o.id}));
+  L.push({wrap:'vslot',kids:STEPS[3].opts.map(o=>({cls:'veg '+o.id,slot:'veg',id:o.id}))});
+  L.push({wrap:'cslot',kids:STEPS[4].opts.map(o=>({cls:'crunch '+o.id,slot:'crunch',id:o.id}))});
+  // part:'top' is the lid. It is the only layer the live builder withholds, so
+  // it needs a marker syncStack can test; the slot stays 'bread' because the
+  // lid's variant is still chosen by pick.bread.
+  STEPS[0].opts.forEach(o=>L.push({cls:'puck breadT '+o.id,slot:'bread',id:o.id,part:'top'}));
+  return L;
+}
+const SPEC=layerSpec();
+// One canonical template, cloned for hero + build preview + every thumbnail so markup lives
+// in exactly one place (ponytail: don't hand-write the same 30 divs 4x).
+const ly=l=>`<div class="ly ${l.cls}" data-slot="${l.slot}" data-id="${l.id}"${
+  l.part?` data-part="${l.part}"`:''}>${'<i></i>'.repeat(PIECES[l.id]||0)}</div>`;
+const stackHTML=(cls='')=>`<div class="sw ${cls}" aria-hidden="true"><div class="board"></div><div class="layers">`+
+  SPEC.map(l=>l.wrap?`<div class="${l.wrap}">${l.kids.map(ly).join('')}</div>`:ly(l)).join('')+
+  `</div></div>`;
+/*
+  ONE sync for the hero, the build preview, all three preset thumbnails, the
+  reveal card and all 20+ leaderboard rows. Two optional arguments carry the
+  only two behaviours that differ between them, so the function is never forked:
+
+  anim  - which single layer just arrived, as "slot:id" (e.g. "veg:tomato"), or
+          'all' for a full rebuild. Anything else, including omitted, is silent.
+          It is one key rather than a boolean because a re-render rebuilds the
+          DOM, so EVERY enabled layer looks new; without the key, picking a
+          second vegetable would re-drop the first one too.
+  open  - open-faced. Withholds the lid. The live builder is the only caller
+          that passes it: the hero, presets, reveal and board all show finished
+          sandwiches, and the lid arriving in the reveal is the payoff.
+*/
+function syncStack(root,p,anim,open){
+  let landed=false;
+  root.querySelectorAll('.ly').forEach(el=>{
+    const {slot,id,part}=el.dataset, v=p[slot];
+    let on = Array.isArray(v) ? v.includes(id) : v===id;
+    if(open && part==='top') on=false;
+    const fresh = on && !el.classList.contains('on');
+    el.classList.toggle('on',on);
+    if(fresh && (anim==='all' || anim===slot+':'+id)){
+      el.classList.remove('drop'); void el.offsetWidth;   // restart if it is mid-fall
+      el.classList.add('drop'); landed=true;
+      setTimeout(()=>el.classList.remove('drop'),760);
+    }
+  });
+  if(landed){root.classList.add('impact');setTimeout(()=>root.classList.remove('impact'),560)}
+}
+const $=id=>document.getElementById(id);
+
+/* ============================ views ============================ */
+const reduced=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
+/* Progressive enhancement, in the strict sense: navigator.vibrate does not
+   exist in iOS Safari at all, and where it does exist it needs a user gesture -
+   which the tap that triggered the drop satisfies. One pulse per user action,
+   never one per piece, or a six-piece namkeen drop becomes a buzz. */
+const buzz=ms=>{if(!reduced()&&navigator.vibrate)try{navigator.vibrate(ms)}catch(e){}};
+function render(){
+  if(!DB.e) seed();   // storage can be cleared from another tab mid-session
+  $('prog').hidden = !(view==='build'||view==='naming');   // naming is still part of the run
+  ({intro,build,naming,reveal,board})[view]();             // each view syncs its own stacks
+  if(view!=='naming'){                                     // naming focuses its own field
+    const h=document.querySelector('main h1');
+    if(h) h.focus({preventScroll:true});                   // so the new view is announced
+  }
+}
+function bars(n){$('prog').innerHTML=STEPS.map((_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}
+
+function intro(){
+  $('main').innerHTML=`
+    <div class="hero bleed curve-deep">
+      <img src="assets/hero-sandwich.webp" width="800" height="481"
+           alt="A grilled tandoori paneer sandwich, cut and stacked" fetchpriority="high">
+    </div>
+    <div class="heroblock bleed curve-b" style="margin-top:-38px;padding-top:var(--s6)">
+      <p class="august">Make it yours</p>
+      <h1 class="display on-hero" tabindex="-1">The Great Indian Sandwich</h1>
+      <div class="stage bare">${stackHTML()}</div>
+    </div>
+    <div class="ctas mt-cta">
+      ${cta('Build Yours','data-act="start"')}
+      <button class="tlink" data-act="board">${ICON.trophy} View Leaderboard</button>
+    </div>
+    <p class="lede rv mt5">Five picks, one sandwich, and a name on it. India votes the Top 20
+      through; a Dr. Oetker jury picks the Top 3.</p>
+    <div class="sect rv">
+      <h2>Start From a Favourite</h2>
+      <p class="sub">Tap one, then change anything you like.</p>
+      <div class="presets">${PRESETS.map((p,i)=>`
+        <button class="preset" data-preset="${i}">
+          <span class="shot"><img src="${p.shot}" alt="${p.alt}" loading="lazy" width="360" height="216">
+            <span class="thumb">${stackHTML('sm')}</span></span>
+          <span class="foot">${ARC}<b>${p.n}</b><span>${p.d}</span></span>
+        </button>`).join('')}</div>
+    </div>
+    <div class="mech bleed rv">${ARC}
+      <h2>How It Works</h2>
+      <ol>
+        <li>${seal(1)}<p>Build it. Five picks, thirty seconds.</p></li>
+        <li>${seal(2)}<p>Name it. Your entry, your code.</p></li>
+        <li>${seal(3)}<p>Share it. Collect votes from India.</p></li>
+      </ol>
+    </div>
+    <small class="fine">Prototype &middot; data stays in this browser</small>`;
+  syncStack(document.querySelector('.stage .sw'),
+    {bread:'sour',mayo:'tandoori',filling:'paneer',veg:['tomato','lettuce'],crunch:['nachos']},false);
+  document.querySelectorAll('.preset').forEach((el,i)=>syncStack(el.querySelector('.sw'),PRESETS[i].p,false));
+  reveal_on_scroll();
+}
+
+function build(){
+  const s=STEPS[step]; bars(step+1);
+  const sel=id=> s.multi ? pick[s.key].includes(id) : pick[s.key]===id;
+  const started = !!(pick.bread||pick.mayo||pick.filling||pick.veg.length||pick.crunch.length);
+  $('main').innerHTML=`
+    <div class="stageband bleed curve-b">${stackHTML(started?'':'empty')}</div>
+    <h1 tabindex="-1" class="mt5">${s.title}</h1>
+    <p class="meta gap">Step ${step+1} of ${STEPS.length} &middot; ${s.hint}</p>
+    <div class="grid${s.opts[0].img?' packs':''}" role="group" aria-label="${s.title}">${s.opts.map(o=>`
+      <button class="opt" aria-pressed="${sel(o.id)}" data-opt="${o.id}">
+        <span class="tick">${ICON.check}</span>
+        <span class="swatch" style="--swatch:${o.img?'var(--white)':o.c}">${
+          o.img?`<img src="${o.img}" alt="${o.alt}" loading="lazy" width="200" height="200">`:''
+        }</span>
+        <span class="foot">${ARC}<span class="name">${o.n}</span></span>
+      </button>`).join('')}</div>
+    <div class="ctas mt5">
+      ${cta(step===STEPS.length-1?'Name It':'Next','data-act="next" '+(s.multi||pick[s.key]?'':'disabled'))}
+      ${step?`<button class="tlink" data-act="back">${ICON.back} Back</button>`:''}
+    </div>`;
+  // `pick` raw, not a defaulted copy: an unpicked slot must render as absent,
+  // not as a stand-in. open-faced, so nothing is ever hidden under the lid.
+  syncStack(document.querySelector('.stageband .sw'),pick,animKey,true);
+  animKey=null;
+}
+
+function naming(){
+  bars(5);
+  $('main').innerHTML=`
+    <h1 tabindex="-1">Almost There</h1>
+    <p class="sub">We need a name on the entry so India knows whose sandwich this is.</p>
+    <div class="field">
+      <label for="who">Your name</label>
+      <input id="who" placeholder="e.g. Aarav" autocomplete="given-name" enterkeyhint="go"
+             aria-invalid="${nameErr?'true':'false'}" ${nameErr?'aria-describedby="whoErr"':''}>
+      ${nameErr?`<p class="err" id="whoErr">${ICON.alert}${nameErr}</p>`
+               :`<p class="help">Shown on the leaderboard next to your sandwich.</p>`}
+    </div>
+    <div class="ctas mt5">
+      ${cta(busy?'<span class="spin"></span>Creating':'Create Entry','data-act="create" '+(busy?'disabled':''))}
+      <button class="tlink" data-act="back-build">${ICON.back} Back to the build</button>
+    </div>`;
+  if(busy) return;
+  const el=$('who'); el.focus();
+  el.addEventListener('input',()=>{                 // clear the error the moment it stops being true
+    if(!nameErr || el.value.trim().length<2) return;
+    nameErr=''; el.setAttribute('aria-invalid','false'); el.removeAttribute('aria-describedby');
+    const e=document.querySelector('.err');
+    if(e) e.outerHTML='<p class="help">Shown on the leaderboard next to your sandwich.</p>';
+  });
+}
+
+function reveal(){
+  const me=DB.e.find(r=>r.code===DB.mine);
+  const all=[...DB.e].sort((a,b)=>b.votes-a.votes);
+  const rank=all.findIndex(r=>r.code===me.code)+1;
+  const tags=[OPT['bread:'+me.pick.bread].n,OPT['mayo:'+me.pick.mayo].n+' Mayo',OPT['filling:'+me.pick.filling].n,
+    ...me.pick.veg.map(v=>OPT['veg:'+v].n),...me.pick.crunch.map(c=>OPT['crunch:'+c].n)];
+  $('main').innerHTML=`
+    <div class="card center">
+      <div class="stage bare">${stackHTML()}</div>
+      <h1 tabindex="-1">${me.name}</h1>
+      <div class="code">${me.code}</div>
+      <div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div class="center" style="margin-top:var(--s5);display:flex;justify-content:center">
+        ${seal("You're<br>In",'lg')}</div>
+    </div>
+    ${me.dupeOf?`<div class="note">${ICON.info}<span><b>Someone built this exact combo first</b> (${me.dupeOf}). You still compete &mdash; the board ranks entries, not combos.</span></div>`:''}
+    <div class="note">${ICON.info}<span>You are <b>#${rank}</b> of ${all.length}. The Top 20 go to the jury round.</span></div>
+    <div class="ctas mt5">
+      ${cta('Share It','data-act="share"')}
+      <button class="tlink" data-act="board">${ICON.trophy} View Leaderboard</button>
+    </div>`;
+  const st=document.querySelector('.card .sw');
+  syncStack(st,me.pick,false);
+  if(!reduced()){
+    // DOM order is already bottom-of-sandwich first, so no reverse() - the
+    // stagger builds the sandwich upward, base bread to top bread.
+    let last=0;
+    [...st.querySelectorAll('.ly.on')].forEach((el,i)=>{
+      el.style.animation='none'; el.offsetHeight;
+      // the lid is the payoff, so it gets a beat of daylight after the filling
+      // has settled instead of arriving on the same 70ms metronome
+      last = i*70 + (el.classList.contains('breadT')?300:0);
+      el.style.animation=`drop .5s var(--ease) ${last}ms both`;
+    });
+    setTimeout(()=>buzz(22),last+280);   // one pulse, when the sandwich closes
+  }
+}
+
+function board(){
+  $('prog').hidden=true;
+  const all=[...DB.e].sort((a,b)=>b.votes-a.votes||a.at-b.at);
+  const list = tab==='top' ? all.slice(0,20) : all.slice(20);
+  $('main').innerHTML=`
+    <h1 tabindex="-1">India's Leaderboard</h1>
+    <p class="meta">${all.length} entries &middot; one vote per person</p>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="${tab==='top'}" data-tab="top">Top 20</button>
+      <button role="tab" aria-selected="${tab==='rest'}" data-tab="rest">Everyone else</button>
+    </div>
+    <div class="list">${ARC}${ list.length ? list.map((r,i)=>{
+      const rk = tab==='top'?i+1:i+21, mine=DB.voted===r.code, spent=!!DB.voted;
+      return `<div class="row ${rk<4?'top3':''}">
+        <div class="rank">${rk}</div>
+        <div class="thumb">${stackHTML('sm')}</div>
+        <div class="who"><b>${r.name}</b><span>${r.by} &middot; ${r.code}</span></div>
+        <button class="vote ${mine?'mine':''}" data-vote="${r.code}" ${spent?'disabled':''}
+          aria-label="${mine?'You voted for':'Vote for'} ${r.name}. ${r.votes} votes">
+          ${mine?ICON.check:ICON.up}<span class="n">${r.votes}</span></button>
+      </div>`}).join('')
+      : `<div class="empty"><h2>Nothing back here yet</h2><p class="sub">Every entry so far is in the Top 20.</p></div>`}
+    </div>
+    ${DB.voted?`<div class="note">${ICON.info}<span>Your one vote is spent. A real build binds this to a verified phone number, not this browser.</span></div>`:''}
+    <div class="ctas mt5">
+      ${cta('Build Another','data-act="restart"')}
+      <button class="tlink" data-act="reset">Reset prototype data</button>
+    </div>`;
+  document.querySelectorAll('.row').forEach((row,i)=>syncStack(row.querySelector('.sw'),list[i].pick,false));
+}
+
+/* ============================ actions ============================ */
+function create(){
+  const v=($('who').value||'').trim();
+  if(v.length<2){nameErr='Enter at least 2 characters so we can credit the entry.';render();return}
+  nameErr=''; busy=true; render();
+  setTimeout(()=>{                                   // ponytail: stands in for POST /api/entries
+    const s=sig(pick), rows=DB.e, owner=rows.find(r=>r.sig===s);
+    const entry={sig:s,pick:JSON.parse(JSON.stringify(pick)),name:title(pick),code:code(s,pick),
+      by:'@'+v.toLowerCase().replace(/\s+/g,''),votes:0,at:Date.now(),dupeOf:owner?owner.code:null};
+    rows.push(entry); DB.e=rows; DB.mine=entry.code; busy=false; view='reveal'; render();
+  },900);
+}
+function share(){
+  const me=DB.e.find(r=>r.code===DB.mine);
+  const text=`I built "${me.name}" ${me.code} for The Great Indian Sandwich. Vote for mine!`;
+  if(navigator.share) navigator.share({title:'The Great Indian Sandwich',text,url:location.href}).catch(()=>{});
+  else alert(text+'\n\n(On a phone this opens the native share sheet → Instagram Stories.)');
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act],[data-opt],[data-vote],[data-tab],[data-preset]'); if(!t)return;
+  if(t.dataset.preset!==undefined){pick=JSON.parse(JSON.stringify(PRESETS[+t.dataset.preset].p));view='build';step=0;return render()}
+  if(t.dataset.opt){
+    const s=STEPS[step];
+    if(s.multi){const a=pick[s.key],i=a.indexOf(t.dataset.opt); i<0?a.push(t.dataset.opt):a.splice(i,1)}
+    else pick[s.key]=t.dataset.opt;
+    const added = s.multi ? pick[s.key].includes(t.dataset.opt) : true;
+    animKey = added ? s.key+':'+t.dataset.opt : null;    // removing a topping does not drop it
+    if(added) setTimeout(()=>buzz(14),240);              // fires on the impact frame, not the tap
+    return render();
+  }
+  if(t.dataset.vote){ if(DB.voted)return; const rows=DB.e; rows.find(x=>x.code===t.dataset.vote).votes++;
+    DB.e=rows; DB.voted=t.dataset.vote; return render() }
+  if(t.dataset.tab){tab=t.dataset.tab; return render()}
+  switch(t.dataset.act){
+    case 'start': view='build'; step=0; break;
+    case 'next': step<STEPS.length-1 ? step++ : (view='naming'); break;
+    case 'back': step--; break;
+    case 'back-build': view='build'; step=STEPS.length-1; break;
+    case 'create': return create();
+    case 'share': return share();
+    case 'board': view='board'; break;
+    case 'restart': pick={bread:null,mayo:null,filling:null,veg:[],crunch:[]}; view='intro'; break;
+    case 'reset':
+      if(!confirm('Reset prototype data? This deletes every sandwich entry, all votes, and your saved code from this browser. This cannot be undone.'))return;
+      localStorage.clear(); return location.reload();
+  }
+  render(); window.scrollTo({top:0,behavior:reduced()?'auto':'smooth'});
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&view==='naming'&&!busy)create()});
+render();
+</script>
+</body>
+</html>
