@@ -219,8 +219,13 @@ const optCard=(s,o,j)=>`
     </span>
   </button>`;
 
+/* Everything inside .stepin is one sticky block pinned to the worktop's lip, so
+   the step never shows a reserved band of empty cream when the user rests off
+   the snap. See the .stepin comment in styles.css for the geometry. The wrapper
+   exists only to give sticky a single box to act on; nothing else depends on it. */
 const stepHTML=s=>`
 <section class="step" id="step-${s.key}" data-step="${s.key}" aria-labelledby="h-${s.key}">
+ <div class="stepin">
   <h2 class="steph" id="h-${s.key}">${s.title}</h2>
   <p class="meta">Step ${s.i+1} of ${STEPS.length} &middot; ${s.hint}</p>
   <div class="tray">${ARC}
@@ -234,6 +239,7 @@ const stepHTML=s=>`
       ? 'Swipe to browse &middot; tap the middle card to add or remove'
       : 'Swipe sideways &middot; the middle one goes on the board'}</p>
   </div>
+ </div>
 </section>`;
 
 const regField=(id,label,help,attrs,prefix)=>`
@@ -298,7 +304,8 @@ function story(){
        sticky container that has to END here, so the worktop can clear the top of
        the screen before the plate enters from the bottom. Inside .build it only
        made the counter stick for longer and both sandwiches showed at once. -->
-  <div class="closing"><p>That's everything. Close it up &mdash; keep scrolling.</p></div>
+  <div class="closing"><p>That's everything. Close it up &mdash; keep scrolling.</p>
+    <ol class="method" id="method" aria-label="Your sandwich, as a method"></ol></div>
 
   <section class="finale" id="finale" aria-labelledby="h-fin">
     <div class="plate"><div class="air"></div><div class="slab">${ARC}</div>${stackHTML()}</div>
@@ -547,6 +554,37 @@ function plate(){
   });
   setTimeout(()=>buzz(22),last+280);
 }
+/* ---------- the closing beat ----------
+   It is a whole screen by construction (see the .closing comment in styles.css:
+   the counter/plate separation needs >= one viewport of run there) and it used
+   to spend that screen on a single centred line. It now reads the assembly back
+   as a METHOD — the making, in cooking voice. Deliberately not the five picks as
+   labels: the finale one screen later already shows the generated name, the code
+   and a pill per pick, and a second list of the same five would read as filler.
+   Painted on approach rather than at boot, because the picks are still changing
+   right up until the last step. */
+const METHOD={
+  bread:v=>`Lay out the ${v} slices.`,
+  mayo:v=>`Spread the ${v} mayo, edge to edge.`,
+  filling:v=>`Pile on the ${v}.`,
+  veg:v=>v?`Layer the ${v}.`:'Skip the salad &mdash; straight to the crunch.',
+  crunch:v=>v?`Finish with the ${v}.`:'No crunch. Soft and honest.'
+};
+const andList=names=>names.length<2?(names[0]||'')
+  :names.slice(0,-1).join(', ')+' and '+names[names.length-1];
+function methodCopy(){
+  $('method').innerHTML=STEPS.map(s=>{
+    // a user who anchored past a rail has no pick yet; read what is centred
+    // rather than printing "Start with the .". Read only — no commit here.
+    const v=s.multi?andList(pick[s.key].map(id=>OPT[s.key+':'+id].n))
+      :(OPT[s.key+':'+pick[s.key]]||s.opts[centredIndex(rails[s.key])]).n;
+    return `<li>${seal(s.i+1)}<p>${METHOD[s.key](v.toLowerCase())}</p></li>`;
+  }).join('');
+}
+function watchClosing(){
+  new IntersectionObserver(rows=>rows.forEach(r=>{if(r.isIntersecting) methodCopy()}),
+    {rootMargin:'0px 0px 240px 0px'}).observe(document.querySelector('.closing'));
+}
 function watchFinale(){
   new IntersectionObserver((rows,o)=>rows.forEach(r=>{
     if(!r.isIntersecting) return;
@@ -678,7 +716,11 @@ story();
 counterSW=document.querySelector('.counter .sw');
 plateSW=document.querySelector('.plate .sw');
 STEPS.forEach(s=>{rails[s.key]=document.querySelector(`[data-rail="${s.key}"]`); watchRail(rails[s.key])});
-setProg(0); watchSteps(); watchFinale(); wireValidation();
+setProg(0); watchSteps(); watchClosing(); watchFinale(); wireValidation();
+// paint the closing method once at boot too: watchClosing keeps it current, but
+// an observer only fires on a rendered frame, so without this the beat is an
+// empty screen for anyone who reaches it without one (and it measured as one).
+methodCopy();
 // the header's height moves with the safe-area inset and with font swap, and both
 // the sticky offset and every step's scroll-margin are derived from it
 const setBarH=()=>document.documentElement.style.setProperty('--barH',$('bar').offsetHeight+'px');

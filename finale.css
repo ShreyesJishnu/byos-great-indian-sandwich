@@ -1,0 +1,177 @@
+/* ============================================================================
+   finale.css — brand treatment for the payoff screen.
+   Loads AFTER styles.css. Restyles the existing finale DOM only; no markup,
+   no new assets, no new tokens. Every value comes from DESIGN.md.
+
+   The finale DOM it works over:
+     section.finale
+       .plate                       the plated sandwich, its slab ends in gold
+       h2#h-fin  .code#fincode  .tags#fintags        <- the reveal
+       #regwrap
+         .field (name your sandwich)
+         h2.minor + p.sub
+         fieldset.fieldset          <- 4 .field, .consent, .help
+         .ctas  (button.cta + a.tlink)
+
+   Four devices are brought down here: warm-neutral colour blocking, the curve,
+   the .list panel, and the two-part CTA's -50px straddle.
+   ============================================================================ */
+
+.finale{
+  /* THE CURVE, deployment (a). The viewBox="0 0 624 28" arc path, verbatim from
+     the ARC const in app.js, carried as a mask so the shape stays one thing and
+     the colour stays a token — the mask has no fill of its own, the element's
+     background-color does the colouring, exactly as --arcfill does for .arc. */
+  --arc-svg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 624 28' preserveAspectRatio='none'%3E%3Cpath d='M16 203C7.16344 203 0 195.837 0 187V21.351C0 21.351 143.433 -1.4836e-05 313.3 0C483.167 1.48361e-05 624 21.3511 624 21.3511V187C624 195.837 616.836 203 608 203H16Z'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------------------------
+   1. THE REVEAL BAND — colour blocking.
+   The plate's slab is a cream→gold gradient that ends in gold at its bottom
+   edge. The name, code and tags sit on a bled gold field flush under it, so the
+   worktop runs on into the name plate instead of stopping at a paper gap.
+   #292B29 on #E1B87F is 7.72:1. Nothing --gray-500 may land here: 3.57:1.
+   --------------------------------------------------------------------------- */
+.finale > #h-fin,
+.finale > .code,
+.finale > .tags{
+  position:relative;
+  background:var(--gold);
+  margin-inline:calc(var(--s4) * -1);
+  padding-inline:var(--s4);
+  text-align:center;
+  color:var(--darkgray);
+}
+.finale > #h-fin{margin-block:0;padding-top:var(--s5);text-wrap:balance}
+.finale > .code{margin-block:0;padding-top:var(--s2)}
+.finale > .code:empty{padding-top:0}
+.finale > .tags{margin-block:0;padding-top:var(--s4);padding-bottom:var(--s5)}
+.finale > .tags:empty{padding-block:0}
+
+/* the band's bottom edge IS the brand arc, flipped so the dome hangs down —
+   the same move the hero block's clip-path makes, at card-footer scale. */
+.finale > .tags::after{
+  content:"";position:absolute;top:calc(100% - 1px);left:0;
+  width:100%;height:17px;background:var(--gold);transform:scaleY(-1);
+  pointer-events:none;
+  -webkit-mask-image:var(--arc-svg); mask-image:var(--arc-svg);
+  -webkit-mask-repeat:no-repeat;    mask-repeat:no-repeat;
+  -webkit-mask-size:100% 100%;      mask-size:100% 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   2. "Name your sandwich" clears the curve, then the panel begins.
+   --------------------------------------------------------------------------- */
+.finale #regwrap > .field:first-child{margin-top:var(--s7)}
+
+/* ---------------------------------------------------------------------------
+   3. THE FORM PANEL — the .list component, verbatim.
+   #F4F5F4 cool off-white, 0 0 16px 16px, margin-top 28px, the arc on its own
+   top edge in its own fill. Identical anatomy to the leaderboard panel, which
+   is what gives the white pill inputs a surface step instead of floating on
+   paper. #292B29 13.05:1 · #5A5E5A helper 6.04:1 · #B3121A error 6.37:1.
+   --------------------------------------------------------------------------- */
+.finale .fieldset{
+  position:relative;
+  background:var(--coolgray);
+  border-radius:0 0 var(--r-card) var(--r-card);
+  margin-top:28px;
+  padding:var(--s5) var(--s4) var(--s6);
+}
+.finale .fieldset::before{
+  content:"";position:absolute;bottom:calc(100% - 1px);left:0;
+  width:100%;height:17px;background:var(--coolgray);pointer-events:none;
+  -webkit-mask-image:var(--arc-svg); mask-image:var(--arc-svg);
+  -webkit-mask-repeat:no-repeat;    mask-repeat:no-repeat;
+  -webkit-mask-size:100% 100%;      mask-size:100% 100%;
+}
+.finale .fieldset > .field:first-of-type{margin-top:0}
+
+/* ---------------------------------------------------------------------------
+   4. THE CONTROLS.
+   Pill, sage hairline and terracotta focus are already the system (styles.css).
+   What is added: terracotta on hover, so a field reads as interactive before
+   it is touched. Colour only — no depth, per The Flat Rule.
+   --------------------------------------------------------------------------- */
+.finale .field input,
+.finale .pillrow{transition:border-color .15s var(--ease)}
+@media (hover:hover){
+  .finale .field input:hover:not(:focus),
+  .finale .pillrow:hover:not(:focus-within){border-color:var(--primary)}
+}
+
+/* the consent box. 44px control (was 24px), a 24px painted box at the 6px
+   minimum radius, sage hairline, terracotta fill and a white tick when checked
+   — the tick path is ICON.check, reused. Never pre-ticked: DPDP wants an act. */
+.finale .consent input{
+  -webkit-appearance:none;appearance:none;
+  flex:0 0 44px;width:44px;height:44px;margin:0 -10px;
+  padding:0;border:0;background:none;
+  display:grid;place-items:center;
+}
+/* MEASURED: the box edge is --gray-500 and NOT --sage. Sage is the system's
+   hairline for cards and inputs, but on the beige consent panel it is 1.5:1 —
+   under WCAG 1.4.11's 3:1 for a control boundary, and this box IS the unchecked
+   state. #5A5E5A is 5.52:1 on beige. Do not "correct" it back to sage. */
+.finale .consent input::before{
+  content:"";width:24px;height:24px;box-sizing:border-box;
+  border:1px solid var(--gray-500);border-radius:6px;background:var(--white);
+  transition:background-color .15s var(--ease),border-color .15s var(--ease);
+}
+.finale .consent input:checked::before{
+  border-color:var(--primary);
+  background:var(--primary)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat center / 15px 15px;
+}
+@media (hover:hover){
+  .finale .consent input:hover::before{border-color:var(--primary)}
+}
+/* focus stays on the 44px control itself — the ring shows the real target.
+   (The global :focus-visible rule already supplies 2px terracotta at 2px
+   offset, 6px radius; this only stops the label stealing the row's width.) */
+.finale .consent label{flex:1;min-width:0}
+
+/* ---------------------------------------------------------------------------
+   5. THE TWO-PART CTA, straddling the panel.
+   The screen's ONE deliberate overlap (The One Overlap Rule): the 110px box is
+   pulled -50px so the 50px pill sits across the panel's bottom edge and the two
+   blocks read as one object. The panel's 32px bottom padding is what the pill
+   crosses, so no content is covered.
+   Sibling selector on purpose — after submit #regwrap has no .fieldset, so the
+   confirmation card never inherits the pull.
+   --------------------------------------------------------------------------- */
+.finale .fieldset + .ctas{margin-top:-50px}
+
+/* ---------------------------------------------------------------------------
+   6. Windows High Contrast / forced-colors.
+   Forced colours drop background images, which would leave the consent control
+   a 44px void with no checked state, and would repaint the arcs in Canvas. Hand
+   the checkbox back to the platform and drop the decoration.
+   --------------------------------------------------------------------------- */
+@media (forced-colors:active){
+  .finale .consent input{
+    -webkit-appearance:auto;appearance:auto;
+    flex:0 0 auto;width:24px;height:24px;margin:10px 0 0;display:inline-block;
+  }
+  .finale .consent input::before{content:none}
+  .finale > .tags::after,
+  .finale .fieldset::before{display:none}
+}
+
+/* ---------------------------------------------------------------------------
+   7. Responsive.
+   --------------------------------------------------------------------------- */
+@media (min-width:768px){
+  /* the payoff headline takes the documented headline-lg step */
+  .finale > #h-fin{font-size:46px;line-height:52px;padding-top:var(--s6)}
+}
+@media (min-width:1025px){
+  /* .finale is a grid here and the band lives in column 2, so it stops being a
+     bled strip and becomes a panel with a card radius on its top corners. */
+  .finale > #h-fin,
+  .finale > .code,
+  .finale > .tags{margin-inline:0;padding-inline:var(--s5)}
+  .finale > #h-fin{border-radius:var(--r-card) var(--r-card) 0 0}
+  .finale #regwrap > .field:first-child{margin-top:var(--s6)}
+}

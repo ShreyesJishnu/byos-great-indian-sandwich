@@ -546,7 +546,17 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 html{scroll-snap-type:y proximity;scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
-.opening,.starters,.howto,.step,.closing{scroll-snap-align:start;scroll-margin-top:var(--barH)}
+/* .finale is in this list for the same reason as the rest, and it is the one that
+   was missing. Without it .closing was the LAST snap target in the document, so
+   past the closing beat the user was free-flicking with nothing marking the spot:
+   at the closing snap the finale starts 48px below the fold at both 375x667 and
+   375x812, which measured as 0px of plate on screen — the payoff for the whole
+   scroll cropped out of frame. Reaching it took another 644px of momentum that
+   nothing asked for. Snapping it to --barH lands the plate flush at the top of
+   the content column instead. Safe here specifically because the counter is a
+   whole .closing behind by this point, so the snap cannot pull the two sandwiches
+   back onto one screen — confirmed by the 1px overlap sweep, still 0 frames. */
+.opening,.starters,.howto,.step,.closing,.finale{scroll-snap-align:start;scroll-margin-top:var(--barH)}
 
 /* ---------- the opening ---------- */
 /* the one deliberate overlap on this screen (The One Overlap Rule) */
@@ -570,21 +580,19 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
 .counter,.plate{position:relative;height:var(--counterH);
   margin-inline:calc(var(--s4) * -1);background:var(--paper)}
 .counter{position:sticky;top:var(--barH);z-index:8}
-/* The counter is sticky but still occupies --counterH of FLOW, and every .step
-   already reserves --counterH as padding-top for it. Unpulled, that band is paid
-   for twice and the first rail starts one blank screen below the worktop —
-   measured 253px at 375x667, 340px at 375x900, with the tray off the bottom of
-   the screen entirely. Pull the FIRST step up by exactly that height so the
-   step's reserved band IS the counter's resting place rather than a second copy
-   of it. The invariant is untouched: padding-top still === --counterH, the
-   counter still paints over it at the snap, the outgoing rail still slides up
-   behind an opaque scene.
-   The pull goes on the step and NOT as a negative margin-bottom on the counter,
-   which looks equivalent and is not: a sticky element is clamped to its
-   containing block by its MARGIN box, so a -counterH bottom margin buys the
-   counter another --counterH of stick past the end of .build. That measured as
-   205px of scroll with both sandwiches on screen at 375x667. */
-.counter + .step{margin-top:calc(var(--counterH) * -1)}
+/* HISTORY, so it is not reintroduced. Steps used to reserve --counterH as their
+   own padding-top while the sticky counter ALSO occupied --counterH of flow, so
+   the band was paid for twice and the first rail started one blank screen below
+   the worktop. The fix then was to pull `.counter + .step` up by --counterH.
+   Both the padding and the pull are gone now — see `.stepin` below, which pins
+   the content to the counter's lip instead of reserving a band under it, so the
+   counter's flow height is paid for exactly once and there is nothing to cancel.
+   If a pull is ever needed again it goes on the STEP as margin-top and NEVER as
+   a negative margin-bottom on .counter, which looks equivalent and is not: a
+   sticky element is clamped to its containing block by its MARGIN box, so a
+   -counterH bottom margin buys the counter another --counterH of stick past the
+   end of .build. That measured as 205px of scroll with both sandwiches on screen
+   at 375x667. */
 .counter .air,.plate .air{position:absolute;left:0;right:0;top:0;bottom:var(--slabH);
   background:radial-gradient(54% 64% at 50% 100%, var(--beige) 0%, rgba(247,233,213,0) 72%)}
 /* the worktop slab. Its top edge IS the brand arc — the counter's front lip and
@@ -610,8 +618,53 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
    just served from; the slack collects at the foot of the step, which is scroll
    run, not a gap at rest. Desktop re-centres it, where the worktop is its own
    full-height column and centring is the right answer. */
-.step{min-height:calc(100svh - var(--barH));padding-top:var(--counterH);
-  display:flex;flex-direction:column}
+/* The second term of the max() is load-bearing twice over, and dropping it
+   regresses both things at 375x667. Removing the old padding-top let the step
+   collapse onto its min-height of (100svh - --barH) = 596px, and:
+   1. the pinned block no longer fits between the counter's lip and the step's
+      own bottom edge, so sticky clamps it ABOVE the lip — measured 11px of the
+      heading hidden behind the worktop at the snap;
+   2. 596px is under 0.909 x 667 = 606px, which is the floor the one-live-step
+      IntersectionObserver needs. Measured two live steps at once at y=2176.
+   The step therefore has to stay at least as tall as the counter plus the block
+   it has to hold. 400px is the block (measured 354px) with slack for a name that
+   wraps. On every other tested viewport (100svh - --barH) is already the larger
+   term, so this changes nothing there and the observer headroom is untouched:
+   +47px at 375x667, 2.9px at 375x812 and 10.9px at 375x900, both unchanged. */
+.step{min-height:max(calc(100svh - var(--barH)),calc(var(--counterH) + 400px));
+  padding-top:0;display:flex;flex-direction:column}
+
+/* ---------- .stepin: why the void is gone ----------
+   The step reserved --counterH of padding so the sticky worktop had a band to
+   paint over. At the snap that band is exactly covered and it looks right; the
+   trouble is that `scroll-snap-type: y proximity` lets the user rest ANYWHERE,
+   and off the snap the band is just visible cream. Measured worst case: 292px
+   of nothing at 375x667, 432px at 375x812, 489px at 375x900 — with the heading
+   shoved to the bottom of the screen and the rail below the fold. Note the gap
+   is (step top in viewport - --barH), i.e. purely the distance from the snap:
+   it does not depend on --counterH, so shrinking the worktop buys nothing.
+
+   So: no reserved band. The step's content is one block pinned to the worktop's
+   lip instead. Scrolling down past a snap, the outgoing step's content stays
+   pinned there, clamped by its own step box, so its bottom edge rides up to
+   exactly where the incoming step's content top is arriving — the two are
+   contiguous and the screen below the counter is never empty. The residual is
+   only the step's own bottom slack at the snap itself, ~10% of the viewport.
+
+   The step box keeps min-height:calc(100svh - --barH) deliberately: the
+   IntersectionObserver's one-live-step guarantee needs every step to stay above
+   ~0.909x viewport, and only its padding changed, never its height.
+
+   ESCAPE HATCH, one line: if two sticky elements at different offsets misbehave
+   on a real iOS Safari, put `padding-top:var(--counterH)` back on .step above.
+   That returns the layout to exactly its previous, known-good geometry whatever
+   sticky does — it only gives the off-snap void back. It is safe on its own;
+   do not also reinstate a pull on `.counter + .step`.
+
+   position:sticky survives `.app{overflow-x:clip}` overhead because `clip` is
+   not a scroll container — and .counter, one level up the same chain, already
+   proves it. */
+.stepin{position:sticky;top:calc(var(--barH) + var(--counterH))}
 .steph{margin:0 0 var(--s1);font-size:28px;line-height:34px}
 .step .meta{margin-bottom:var(--s2)}
 
@@ -696,11 +749,34 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
    The + --s7 is deliberate slack on that boundary. One viewport of separation is
    the minimum and lands the crossover on the exact pixel where the counter's
    bottom meets --barH; sub-pixel layout and fractional DPR can round either way
-   there. 48px more costs nothing, and the run carries type rather than air. */
-.closing{min-height:calc(100lvh - var(--barH) + var(--s7));display:grid;place-items:center;
+   there. 48px more costs nothing, and the run carries type rather than air.
+
+   It used to spend that whole screen on one centred line, which is why the
+   client screenshotted it as more empty space: a 24px line in the middle of
+   875px of cream is 400px of nothing above it and 400px below. The height is
+   not negotiable, so the beat has to carry something — and what belongs here is
+   the METHOD, the making read back as a recipe in cooking voice. Deliberately
+   not the five picks as labels: the finale one screen later already shows the
+   generated name, the code and a pill per pick, and repeating that here would
+   be the same information twice in a row, which is its own kind of filler.
+   This closes the making; the finale opens the result.
+   Laid out with space-evenly rather than centred, so the lines distribute down
+   the screen they were given instead of huddling in the middle of it. */
+.closing{min-height:calc(100lvh - var(--barH) + var(--s7));
+  display:flex;flex-direction:column;justify-content:space-evenly;
   padding:var(--s7) var(--s4);text-align:center}
 .closing p{margin:0;font-family:var(--font-primary);font-weight:500;font-size:24px;
   line-height:30px;letter-spacing:.72px;color:var(--darkgray)}
+/* the method. Same seal-numbered grammar as "How It Works", which is the brand's
+   own device for an ordered recipe — there in white line art on red, here as the
+   filled mark on paper. */
+.method{list-style:none;margin:0;padding:0;flex:1 1 auto;width:100%;max-width:340px;
+  align-self:center;display:flex;flex-direction:column;justify-content:space-evenly;
+  text-align:left}
+.method li{display:flex;align-items:center;gap:var(--s4)}
+.method .seal{--sz:40px}
+.method .seal b{font-size:17px}
+.method p{font-size:20px;line-height:26px;letter-spacing:.6px;text-wrap:balance}
 
 /* ---------- the finale ---------- */
 .finale{padding-bottom:var(--s7)}
@@ -768,8 +844,9 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
     border-radius:var(--r-card);overflow:hidden}
   .counter .sw{--s:1.45}
   .step{grid-column:2;min-width:0;padding-top:0;justify-content:center}
-  /* no band to reclaim here: the worktop has its own column */
-  .counter + .step{margin-top:0}
+  /* nothing to pin against here: the worktop is its own full-height column, so
+     the step content is never under it and has no lip to hold on to. */
+  .stepin{position:static}
   .tray{margin-inline:0;border-radius:var(--r-card)}
   .finale{display:grid;grid-template-columns:420px minmax(0,1fr);column-gap:var(--s7);align-items:start}
   .finale .plate{grid-column:1;grid-row:1 / span 4;margin-inline:0;position:sticky;
