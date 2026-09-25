@@ -1,0 +1,85 @@
+/* ============ ENTRY LOADER ============
+   Full-viewport overlay, shown from first paint, removed from the DOM by
+   loader.js once fonts + hero are ready (or the 3s hard timeout fires).
+   Self-contained on purpose: it may not depend on styles.css loading, and it
+   must not be edited from there. Colours are literals for the same reason -
+   :root tokens live in styles.css and the loader outlives neither ordering
+   assumption. Only transform/opacity animate.
+   ponytail: the sandwich is a 5-layer simplification of the .sw renderer in
+   styles.css, not a second copy of it. If the real stack's palette moves,
+   move these five --fill pairs by hand. */
+
+#ldr{position:fixed;inset:0;z-index:9999;background:#FDF9F4;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:28px;padding:24px 16px;opacity:1;transition:opacity .38s cubic-bezier(.4,0,.2,1)}
+#ldr.out{opacity:0}
+
+#ldr img{width:88px;height:58px;object-fit:contain}
+
+#ldr h1{margin:0;text-align:center;text-wrap:balance;max-width:11ch;
+  font-family:"MomentsDisplay","MomentsDisplay Fallback",Arial,sans-serif;
+  font-weight:700;font-size:34px;line-height:40px;color:#292B29}
+
+/* ---------- stage: sandwich + its contact shadow ---------- */
+.ldstage{position:relative;width:150px;height:150px}
+.ldsw{position:absolute;left:0;right:0;bottom:26px;
+  display:flex;flex-direction:column-reverse;align-items:center;
+  transform-origin:50% 100%;
+  animation:ldbounce .95s cubic-bezier(.4,0,.2,1) infinite}
+.ldsh{position:absolute;left:50%;bottom:10px;width:112px;height:14px;
+  margin-left:-56px;border-radius:50%;background:rgba(96,48,24,.22);
+  transform-origin:50% 50%;
+  animation:ldshadow .95s cubic-bezier(.4,0,.2,1) infinite}
+
+/* the puck: squashed ellipse, domed top light, extruded side wall.
+   Same construction as .puck in styles.css at roughly 0.7 scale. */
+.ldp{position:relative;width:var(--w);height:var(--h);border-radius:50%;
+  background:radial-gradient(120% 140% at 32% 22%, var(--hi,rgba(255,255,255,.55)), transparent 60%),
+             var(--fill);
+  box-shadow:0 2px 0 0 var(--fill-dark), 0 4px 0 0 var(--fill-dark),
+             0 6px 0 0 var(--fill-dark)}
+
+/* DOM order is bottom-of-sandwich first (column-reverse), overlaps are
+   negative margins, exactly as the real stack does it. */
+.ldp.b1{--w:130px;--h:26px;--fill:#f1dfb8;--fill-dark:#d8bd85;--hi:rgba(255,255,255,.7);
+  margin-bottom:-17px;z-index:1}
+/* tandoori rather than original: at this size a near-white mayo needs the
+   legibility ring the real stack gives it, and a 2px ring on a 130px ellipse
+   reads as a wire hoop. Colour does the same job for free. */
+.ldp.my{--w:132px;--h:12px;--fill:#e07a3f;--fill-dark:#b0551f;--hi:rgba(255,220,180,.5);
+  margin-bottom:-6px;z-index:2}
+.ldp.fl{--w:118px;--h:22px;--fill:#e8c15a;--fill-dark:#bd9636;--hi:rgba(255,255,240,.5);
+  margin-bottom:-15px;z-index:3}
+.ldlf{position:relative;width:122px;height:15px;margin-bottom:-11px;z-index:4;
+  border-radius:62% 38% 55% 45% / 48% 55% 45% 52%;
+  background:radial-gradient(120% 140% at 30% 20%, rgba(255,255,255,.4), transparent 60%),
+             linear-gradient(145deg,#8bcb52,#5fa233 70%);
+  box-shadow:0 2px 0 0 #3f7a22}
+.ldp.b2{--w:130px;--h:36px;--fill:#f1dfb8;--fill-dark:#d8bd85;--hi:rgba(255,255,255,.7);z-index:5}
+.ldp.b2::before{content:"";position:absolute;inset:0;border-radius:50%;
+  border:4px solid var(--fill-dark);opacity:.5;
+  -webkit-mask:linear-gradient(#000,transparent 55%);mask:linear-gradient(#000,transparent 55%)}
+
+@keyframes ldbounce{
+  0%  {transform:translateY(0) scale(1.06,.94);animation-timing-function:cubic-bezier(0,.4,.3,1)}
+  18% {transform:translateY(-7px) scale(.98,1.02)}
+  50% {transform:translateY(-36px) scale(1,1);animation-timing-function:cubic-bezier(.5,0,1,.6)}
+  88% {transform:translateY(-3px) scale(1.01,.99)}
+  100%{transform:translateY(0) scale(1.06,.94)}
+}
+@keyframes ldshadow{
+  0%,100%{transform:scale(1);opacity:.8}
+  50%    {transform:scale(.62);opacity:.35}
+}
+
+@media (min-width:768px){
+  #ldr h1{font-size:46px;line-height:52px}
+  #ldr img{width:104px;height:68px}
+}
+
+/* static state, instant dismissal - no bounce, no fade */
+@media (prefers-reduced-motion:reduce){
+  #ldr{transition:none}
+  .ldsw,.ldsh{animation:none}
+  .ldsw{transform:none}
+}
