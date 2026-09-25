@@ -132,6 +132,27 @@
    offset, 6px radius; this only stops the label stealing the row's width.) */
 .finale .consent label{flex:1;min-width:0}
 
+/* MEASURED at 375: every label, input and helper in the panel starts at x=32.
+   The consent copy started at x=84 — the beige box was inset to 32 and then
+   added its own 16px padding, and the 44px control was in flow, so the text was
+   shoved 52px right of the column and read as hanging off the form.
+   Two moves, no markup:
+   (a) the band bleeds to the card's own edges, so its padded content box IS the
+       32..343 column instead of a second, narrower one;
+   (b) the control leaves the flow and lives in the first line's indent, so the
+       copy's left edge is the column's, not the checkbox's.
+   left/top:var(--s4) puts the 24px painted box at x=32 and on the first line
+   box exactly; margin:-10px is the 44px target overhanging it symmetrically, so
+   the target stays 44px and nothing about section 4 changes. */
+.finale .consent{
+  display:block;position:relative;
+  margin-inline:calc(var(--s4) * -1);
+  border-radius:0;
+  outline-offset:0;              /* invalid outline now rides the card's edges */
+}
+.finale .consent input{position:absolute;left:var(--s4);top:var(--s4);margin:-10px}
+.finale .consent label{display:block;text-indent:36px}  /* 24px box + --s3 gap */
+
 /* ---------------------------------------------------------------------------
    5. THE TWO-PART CTA, straddling the panel.
    The screen's ONE deliberate overlap (The One Overlap Rule): the 110px box is
@@ -143,6 +164,14 @@
    --------------------------------------------------------------------------- */
 .finale .fieldset + .ctas{margin-top:-50px}
 
+/* MEASURED at 375: the pill was 250px (the global .cta cap) inside a 311px
+   content column — centred, but 61px narrower than the four fields above it,
+   which reads as a miss rather than a choice. .ctas is the panel's OUTER box
+   (16..359), so taking the panel's own padding off it makes the pill exactly the
+   311px column, 32..343, flush with every field. The 110px box, the 50px pill
+   and the ring inset 5px are untouched — only the cap goes. */
+.finale .fieldset + .ctas .cta{max-width:none;width:calc(100% - var(--s4) * 2)}
+
 /* ---------------------------------------------------------------------------
    6. Windows High Contrast / forced-colors.
    Forced colours drop background images, which would leave the consent control
@@ -152,7 +181,7 @@
 @media (forced-colors:active){
   .finale .consent input{
     -webkit-appearance:auto;appearance:auto;
-    flex:0 0 auto;width:24px;height:24px;margin:10px 0 0;display:inline-block;
+    flex:0 0 auto;width:24px;height:24px;margin:0;display:inline-block;
   }
   .finale .consent input::before{content:none}
   .finale > .tags::after,
