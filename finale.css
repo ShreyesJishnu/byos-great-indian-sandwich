@@ -11,10 +11,10 @@
          .field (name your sandwich)
          h2.minor + p.sub
          fieldset.fieldset          <- 4 .field, .consent, .help
-         .ctas  (button.cta + a.tlink)
+         .ctas  (button.cta)
 
    Four devices are brought down here: warm-neutral colour blocking, the curve,
-   the .list panel, and the two-part CTA's -50px straddle.
+   the cool-grey panel, and the two-part CTA's -50px straddle.
    ============================================================================ */
 
 .finale{
@@ -65,11 +65,13 @@
 .finale #regwrap > .field:first-child{margin-top:var(--s7)}
 
 /* ---------------------------------------------------------------------------
-   3. THE FORM PANEL — the .list component, verbatim.
+   3. THE FORM PANEL.
    #F4F5F4 cool off-white, 0 0 16px 16px, margin-top 28px, the arc on its own
-   top edge in its own fill. Identical anatomy to the leaderboard panel, which
-   is what gives the white pill inputs a surface step instead of floating on
-   paper. #292B29 13.05:1 · #5A5E5A helper 6.04:1 · #B3121A error 6.37:1.
+   top edge in its own fill. The panel is what gives the white pill inputs a
+   surface step instead of leaving them to float on paper. It owns every one of
+   those values outright — it inherits nothing, so it is unaffected by anything
+   removed from styles.css.
+   #292B29 13.05:1 · #5A5E5A helper 6.04:1 · #B3121A error 6.37:1.
    --------------------------------------------------------------------------- */
 .finale .fieldset{
   position:relative;

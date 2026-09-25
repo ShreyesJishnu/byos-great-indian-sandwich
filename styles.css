@@ -457,7 +457,7 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .heroblock .august{margin-bottom:var(--s2)}
 .heroblock{background:var(--hero-fill);color:var(--hero-ink);padding:var(--s6) var(--s4) var(--s7)}
 
-/* ============ cards / list ============ */
+/* ============ cards ============ */
 .card{position:relative;background:var(--white);border-radius:var(--r-card);
   border:1px solid var(--sage);padding:var(--s5) var(--s4) var(--s5)}
 .code{font-family:var(--font-neutral);font-size:14px;letter-spacing:2.1px;
@@ -472,38 +472,10 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .note svg{flex:0 0 auto;margin-top:3px}
 .note b{font-family:var(--font-primary);font-weight:500}
 
-.list{position:relative;background:var(--coolgray);border-radius:0 0 var(--r-card) var(--r-card);
-  --arcfill:var(--coolgray);padding:var(--s2) var(--s4) var(--s4);margin-top:28px}
-.row{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0;
-  border-bottom:1px solid var(--curve-line)}
-.row:last-child{border-bottom:0}
-.rank{width:26px;text-align:center;font-family:var(--font-primary);font-weight:500;font-size:20px;
-  line-height:1;color:var(--gray-500)}
-.row.top3 .rank{color:var(--primary)}
+/* 52px thumbnail box. Used by the three preset cards; the base fill, border and
+   clip live here and .preset .thumb only re-places the box. */
 .thumb{position:relative;flex:0 0 52px;width:52px;height:52px;border-radius:10px;
   background:var(--white);border:1px solid var(--sage);overflow:hidden}
-.who{flex:1;min-width:0}
-.who b{font-family:var(--font-primary);font-weight:500;font-size:20px;line-height:26px;
-  letter-spacing:.6px;color:var(--darkgray);display:-webkit-box;
-  -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.who span{display:block;font-size:14px;line-height:20px;letter-spacing:1.4px;text-transform:uppercase;
-  color:var(--gray-500)}
-.vote{min-width:56px;min-height:50px;border-radius:var(--r-pill);border:1px solid var(--primary);
-  background:var(--white);color:var(--primary);padding:6px 10px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  transition:background .15s var(--ease),border-color .15s var(--ease),transform .12s var(--ease)}
-.vote .n{font-family:var(--font-neutral);font-size:14px;letter-spacing:1.4px}
-@media (hover:hover){.vote:hover{background:var(--cream)}}
-.vote:active:not(:disabled){transform:scale(.94)}
-.vote:disabled{border-color:var(--sage);color:var(--gray-500)}
-.vote.mine{background:var(--primary);border-color:var(--primary);color:#fff}
-
-.tabs{display:flex;gap:var(--s2);background:var(--white);border:1px solid var(--sage);padding:4px;
-  border-radius:var(--r-pill);margin:var(--s4) 0 0}
-.tabs button{flex:1;min-height:44px;border:0;background:transparent;border-radius:var(--r-pill);
-  font-family:var(--font-neutral);font-size:12px;letter-spacing:1.8px;text-transform:uppercase;
-  color:var(--gray-500);transition:background .15s var(--ease),color .15s var(--ease)}
-.tabs button[aria-selected=true]{background:var(--primary);color:#fff}
 
 /* ============ form - pill input, a documented extension (spec S11.4) ============ */
 .field{margin-top:var(--s5)}
@@ -519,11 +491,8 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .err{font-size:14px;line-height:20px;color:#B3121A;margin:var(--s2) 0 0;padding-left:var(--s5);
   display:flex;gap:var(--s2);align-items:center}
 
-.empty{text-align:center;padding:var(--s7) var(--s4);color:var(--gray-500)}
-.empty h2{font-size:24px;line-height:30px;font-weight:500;margin-bottom:var(--s2);color:var(--darkgray)}
 .center{text-align:center}
 .mt5{margin-top:var(--s5)}
-.meta.gap{margin-bottom:var(--s4)}
 .fine{display:block;text-align:center;color:var(--gray-500);font-size:14px;line-height:20px;
   letter-spacing:1.4px;text-transform:uppercase;padding:var(--s5) var(--s4) 0}
 
@@ -711,7 +680,7 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
 .opt .chip .ck{display:none;line-height:0}
 .opt[aria-pressed=true] .chip .ck,.opt[aria-checked=true] .chip .ck{display:block}
 
-/* themed arrow hints. Same anatomy as the vote control — white, 1px sage, 44px,
+/* themed arrow hints. The system's small round control — white, 1px sage, 44px,
    no shadow — and they are real paging buttons, not decoration. The glyph is the
    brand's own bow with a knife tip on it, never a generic chevron. */
 .nudge{position:absolute;top:50%;transform:translateY(-50%);z-index:4;
@@ -800,14 +769,6 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
   display:flex;align-items:center}
 .consent[data-invalid=true]{outline:2px solid var(--campaign);outline-offset:2px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-
-/* ---------- the leaderboard, its own route ----------
-   A fixed overlay under the sticky header rather than a view swap, so the story
-   keeps its scroll position underneath and coming back costs nothing. */
-#board{position:fixed;left:0;right:0;top:var(--barH);bottom:0;z-index:15;
-  background:var(--paper);overflow-y:auto;overscroll-behavior:contain}
-#board[hidden]{display:none}
-#board .inner{max-width:440px;margin:0 auto;padding:var(--s5) var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
 /* ============ scroll reveal (spec S8.3) - 10vh rise, 50/200/400/600/800 stagger ============ */
 @media (prefers-reduced-motion:no-preference){
   .rv{opacity:0;transform:translateY(10vh);will-change:opacity,transform}
@@ -828,13 +789,11 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
   .app{max-width:700px}
   .hero img{height:300px}
   .counter .sw,.plate .sw{--s:.95}
-  #board .inner{max-width:700px}
 }
 @media (min-width:1025px){
   :root{--cardW:220px;--slabH:64px}
   .app{max-width:1120px}
   .hero img{height:420px}
-  #board .inner{max-width:800px}
   /* the worktop moves to its own column and the recipe scrolls beside it.
      The counter's grid area spans every step row, so it is tall enough to stay
      stuck for the whole build without any JS. */

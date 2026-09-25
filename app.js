@@ -39,11 +39,8 @@ const PRESETS=[
 const ICON={
  check:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
  share:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 15V4m0 0L8 8m4-4l4 4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14v4a2 2 0 002 2h10a2 2 0 002-2v-4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
- trophy:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M7 4h10v6a5 5 0 01-10 0V4z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M7 6H4.5a2.5 2.5 0 005 .5M17 6h2.5a2.5 2.5 0 01-5 .5M10 20h4M12 15v5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
  info:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.9"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
- alert:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5.5M12 16h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
- up:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V6m0 0l-6 6m6-6l6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
- back:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M14 6l-6 6 6 6" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+ alert:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5.5M12 16h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>'
 };
 
 /* ============ brand devices, spec S9 ============ */
@@ -72,32 +69,21 @@ function reveal_on_scroll(){
 
 /* ============================ state ============================ */
 let pick={bread:null,mayo:null,filling:null,veg:[],crunch:[]};
+// Anyone who loaded the leaderboard build still has its two keys sitting in this
+// origin with nothing left to read them. Drop them on boot rather than orphaning
+// a 24-entry blob in browsers we can no longer reach.
+['gis_e','gis_voted'].forEach(k=>localStorage.removeItem(k));
+// One key, holding the one entry this browser filed. ponytail: stands in for the
+// response to POST /api/entries; nothing reads it back on load, share() is its
+// only consumer. try/catch because an older build stored a bare code string here.
 const DB={
- get e(){return JSON.parse(localStorage.getItem('gis_e')||'null')}, set e(v){localStorage.setItem('gis_e',JSON.stringify(v))},
- get voted(){return localStorage.getItem('gis_voted')},          // ponytail: device-scoped; real build binds to verified phone
- set voted(v){localStorage.setItem('gis_voted',v)},
- get mine(){return localStorage.getItem('gis_mine')}, set mine(v){localStorage.setItem('gis_mine',v)}
+ get mine(){try{return JSON.parse(localStorage.getItem('gis_mine'))}catch(e){return null}},
+ set mine(v){localStorage.setItem('gis_mine',JSON.stringify(v))}
 };
 const sig=p=>[p.bread,p.mayo,p.filling,[...p.veg].sort().join('-'),[...p.crunch].sort().join('-')].join('|');
 const title=p=>`${NAMES.mayo[p.mayo]} ${NAMES.filling[p.filling]} ${p.crunch.length?NAMES.tail[(p.crunch.length+p.veg.length)%NAMES.tail.length]:'Sandwich'}`;
 function code(s,p){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;
   return '#'+((NAMES.mayo[p.mayo]||'X')[0]+(NAMES.filling[p.filling]||'X')[0]+'S').toUpperCase()+(h%1000+'').padStart(3,'0')}
-function seed(){
-  if(DB.e)return; const r=a=>a[Math.floor(Math.random()*a.length)], rows=[], seen=new Set(), used=new Set();
-  const handles=['aarav','diya','kabir','meera','rohan','ishaan','anaya','vihaan','sara','arjun','nisha','dev','tara','yash','mira','kiran','zoya','veer','anika','rhea','omkar','juhi','samar','neel'];
-  for(let i=0;i<24;i++){
-    const p={bread:r(STEPS[0].opts).id,mayo:r(STEPS[1].opts).id,filling:r(STEPS[2].opts).id,
-      veg:STEPS[3].opts.filter(()=>Math.random()<.5).map(o=>o.id),
-      crunch:STEPS[4].opts.filter(()=>Math.random()<.45).map(o=>o.id)};
-    const s=sig(p); if(seen.has(s))continue; seen.add(s);
-    let c=code(s,p); while(used.has(c)) c=c.slice(0,4)+String((+c.slice(4)+1)%1000).padStart(3,'0');
-    used.add(c);
-    rows.push({sig:s,pick:p,name:title(p),code:c,by:'@'+handles[i%handles.length],
-      votes:Math.floor(Math.random()*340)+20,at:Date.now()-i*36e5});
-  }
-  DB.e=rows;
-}
-seed();
 
 /* ============ Smart Mouth pattern: every layer in the DOM, toggled by display ============ */
 /* .layers is flex column-reverse, so SPEC runs BOTTOM of the sandwich first.
@@ -127,8 +113,8 @@ const stackHTML=(cls='')=>`<div class="sw ${cls}" aria-hidden="true"><div class=
   SPEC.map(l=>l.wrap?`<div class="${l.wrap}">${l.kids.map(ly).join('')}</div>`:ly(l)).join('')+
   `</div></div>`;
 /*
-  ONE sync for the hero, the build preview, all three preset thumbnails, the
-  reveal card and all 20+ leaderboard rows. Two optional arguments carry the
+  ONE sync for the hero, the build preview, all three preset thumbnails and the
+  reveal card. Two optional arguments carry the
   only two behaviours that differ between them, so the function is never forked:
 
   anim  - which single layer just arrived, as "slot:id" (e.g. "veg:tomato"), or
@@ -137,7 +123,7 @@ const stackHTML=(cls='')=>`<div class="sw ${cls}" aria-hidden="true"><div class=
           DOM, so EVERY enabled layer looks new; without the key, picking a
           second vegetable would re-drop the first one too.
   open  - open-faced. Withholds the lid. The live builder is the only caller
-          that passes it: the hero, presets, reveal and board all show finished
+          that passes it: the hero, presets and reveal all show finished
           sandwiches, and the lid arriving in the reveal is the payoff.
 */
 function syncStack(root,p,anim,open){
@@ -182,10 +168,9 @@ const mark=e=>{if(e.isTrusted) gestured=true};   // untrusted events do not acti
 const buzz=ms=>{if(gestured&&!reduced()&&navigator.vibrate)try{navigator.vibrate(ms)}catch(e){}};
 
 /* ============================ scroll-narrative state ============================
-   There is no `view` and no render(). The build flow is ONE document, written
-   once at boot; after that every change is a targeted DOM update. The only thing
-   still rendered wholesale is the leaderboard, which is its own route. */
-let tab='top', busy=false, plated=false, submitted=false;
+   There is no `view`, no render() and no routes. The whole site is ONE document,
+   written once at boot; after that every change is a targeted DOM update. */
+let busy=false, plated=false, submitted=false;
 const byKey={}; STEPS.forEach((s,i)=>{s.i=i; byKey[s.key]=s});
 
 /* themed arrow hints: the brand's own bow, given a knife tip. Not a chevron. */
@@ -263,8 +248,8 @@ function story(){
       <h1 class="display on-hero" id="h1" tabindex="-1">The Great Indian Sandwich</h1>
     </div>
     <p class="lede mt5">Five picks, one sandwich, and a name on it. Scroll to cook &mdash; the
-      counter is set and the board is waiting. India votes the Top 20 through; a Dr. Oetker
-      jury picks the Top 3.</p>
+      counter is set. A Dr. Oetker jury reads every entry, and the builds they find most
+      interesting get made for real.</p>
     <div class="cue" aria-hidden="true"><span class="lbl">Scroll to start</span><span class="ln"></span>${ICON.arcD}</div>
   </section>
 
@@ -289,8 +274,6 @@ function story(){
   </section>
   <p class="center" style="margin:var(--s5) 0 0">
     <a class="tlink" href="#step-bread">Start with the bread</a></p>
-  <p class="center" style="margin:0">
-    <a class="tlink" href="#leaderboard">${ICON.trophy} View Leaderboard</a></p>
 
   <div class="build" id="build">
     <div class="counter" id="counter">
@@ -323,7 +306,7 @@ function story(){
       <p class="sub">So we can reach you if a jury picks yours.</p>
       <fieldset class="fieldset">
         <legend class="vh">Registration details</legend>
-        ${regField('rname','Full name','As it should appear on the leaderboard.',
+        ${regField('rname','Full name','As it should appear on your entry.',
           'autocomplete="name" enterkeyhint="next" aria-describedby="rname-help"')}
         ${regField('rphone','Mobile number','10 digits. We only use it to verify your entry.',
           'type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" '+
@@ -342,7 +325,6 @@ function story(){
       </fieldset>
       <div class="ctas mt5">
         ${cta('Submit Entry','data-act="submit"')}
-        <a class="tlink" href="#leaderboard">${ICON.trophy} View Leaderboard</a>
       </div>
     </div>
   </section>
@@ -472,7 +454,7 @@ function watchSteps(){
 
 /* ---------- taps ---------- */
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-act],[data-preset],[data-nudge],.opt[data-key],[data-vote],[data-tab]');
+  const t=e.target.closest('[data-act],[data-preset],[data-nudge],.opt[data-key]');
   if(!t) return;
 
   const card=t.closest('.opt[data-key]');
@@ -489,18 +471,12 @@ document.addEventListener('click',e=>{
     return goTo(rail,(+rail.dataset.at||0)+ +t.dataset.nudge,false);
   }
   if(t.dataset.preset!==undefined) return usePreset(+t.dataset.preset);
-  if(t.dataset.vote){
-    if(DB.voted) return;
-    const rows=DB.e; rows.find(x=>x.code===t.dataset.vote).votes++;
-    DB.e=rows; DB.voted=t.dataset.vote; return renderBoard();
-  }
-  if(t.dataset.tab){tab=t.dataset.tab; return renderBoard()}
   switch(t.dataset.act){
     case 'submit':  return submit();
     case 'share':   return share();
     case 'restart': location.hash=''; return location.reload();
     case 'reset':
-      if(!confirm('Reset prototype data? This deletes every sandwich entry, all votes, and your saved code from this browser. This cannot be undone.')) return;
+      if(!confirm('Reset prototype data? This deletes your sandwich entry and the details you gave us \u2014 your name, mobile number, email and city \u2014 from this browser. This cannot be undone.')) return;
       localStorage.clear(); return location.reload();
   }
 });
@@ -634,18 +610,24 @@ function submit(){
   const btn=document.querySelector('[data-act=submit]');
   btn.disabled=true; btn.querySelector('.pill').innerHTML='<span class="spin"></span>Creating';
   setTimeout(()=>{                                  // ponytail: stands in for POST /api/entries
-    const s=sig(pick), rows=DB.e, owner=rows.find(r=>r.sig===s),
-          given=$('sname').value.trim();
-    const entry={sig:s,pick:JSON.parse(JSON.stringify(pick)),name:given||title(pick),
-      code:code(s,pick),by:'@'+$('rname').value.trim().toLowerCase().replace(/\s+/g,''),
-      city:$('rcity').value.trim(),votes:0,at:Date.now(),dupeOf:owner?owner.code:null};
-    rows.push(entry); DB.e=rows; DB.mine=entry.code; busy=false; submitted=true;
+    const given=$('sname').value.trim();
+    // the body of that POST: the sandwich, plus the lead the jury has to reach.
+    // Field names are the endpoint's, so swapping this for a real fetch is a
+    // one-line change. Consent is not a field: submit() cannot get here without it.
+    const entry={
+      code:code(sig(pick),pick), name:given||title(pick),
+      pick:JSON.parse(JSON.stringify(pick)),
+      fullName:$('rname').value.trim(), phone:$('rphone').value.trim(),
+      email:$('remail').value.trim(), city:$('rcity').value.trim(),
+      at:Date.now()};
+    DB.mine=entry; busy=false; submitted=true;
     confirmEntry(entry);
   },900);
 }
+/* The ending. No board to hand off to, so the code is the keepsake and the two
+   ways out of a finished entry — share it, build another — live here, which is
+   where the board's own CTAs used to be. */
 function confirmEntry(me){
-  const all=[...DB.e].sort((a,b)=>b.votes-a.votes);
-  const rank=all.findIndex(r=>r.code===me.code)+1;
   $('regwrap').innerHTML=`
     <div class="card center mt5">
       <h2 tabindex="-1" id="donetitle">${me.name}</h2>
@@ -653,62 +635,21 @@ function confirmEntry(me){
       <div class="center" style="margin-top:var(--s5);display:flex;justify-content:center">
         ${seal("You're<br>In",'lg')}</div>
     </div>
-    ${me.dupeOf?`<div class="note">${ICON.info}<span><b>Someone built this exact combo first</b> (${me.dupeOf}). You still compete &mdash; the board ranks entries, not combos.</span></div>`:''}
-    <div class="note">${ICON.info}<span>You are <b>#${rank}</b> of ${all.length}. The Top 20 go to the jury round.</span></div>
+    <div class="note">${ICON.info}<span><b>Keep this code.</b> It is how we find your sandwich.
+      If the jury picks yours, we will call the number you gave.</span></div>
     <div class="ctas mt5">
       ${cta('Share It','data-act="share"')}
-      <a class="tlink" href="#leaderboard">${ICON.trophy} View Leaderboard</a>
+      ${cta('Build Another','data-act="restart"')}
+      <button class="tlink" data-act="reset">Reset prototype data</button>
     </div>`;
   $('donetitle').focus({preventScroll:true});
   $('donetitle').scrollIntoView({behavior:reduced()?'auto':'smooth',block:'center'});
 }
 function share(){
-  const me=DB.e.find(r=>r.code===DB.mine);
-  const text=`I built "${me.name}" ${me.code} for The Great Indian Sandwich. Vote for mine!`;
+  const me=DB.mine;
+  const text=`I built "${me.name}" ${me.code} for The Great Indian Sandwich. Build yours.`;
   if(navigator.share) navigator.share({title:'The Great Indian Sandwich',text,url:location.href}).catch(()=>{});
   else alert(text+'\n\n(On a phone this opens the native share sheet -> Instagram Stories.)');
-}
-
-/* ============================ leaderboard, its own route ============================
-   A fixed overlay under the sticky header instead of a view swap: the narrative
-   keeps its scroll position underneath, so coming back costs nothing and the
-   browser Back button is the close button. */
-function renderBoard(){
-  const all=[...DB.e].sort((a,b)=>b.votes-a.votes||a.at-b.at);
-  const list=tab==='top'?all.slice(0,20):all.slice(20);
-  $('boardbody').innerHTML=`
-    <p class="center" style="margin:0 0 var(--s3)"><a class="tlink" href="#">${ICON.back} Back to the kitchen</a></p>
-    <h1 id="boardh" tabindex="-1">India's Leaderboard</h1>
-    <p class="meta">${all.length} entries &middot; one vote per person</p>
-    <div class="tabs" role="tablist">
-      <button role="tab" aria-selected="${tab==='top'}" data-tab="top">Top 20</button>
-      <button role="tab" aria-selected="${tab==='rest'}" data-tab="rest">Everyone else</button>
-    </div>
-    <div class="list">${ARC}${ list.length ? list.map((r,i)=>{
-      const rk=tab==='top'?i+1:i+21, mine=DB.voted===r.code, spent=!!DB.voted;
-      return `<div class="row ${rk<4?'top3':''}">
-        <div class="rank">${rk}</div>
-        <div class="thumb">${stackHTML('sm')}</div>
-        <div class="who"><b>${r.name}</b><span>${r.by} &middot; ${r.code}</span></div>
-        <button class="vote ${mine?'mine':''}" data-vote="${r.code}" ${spent?'disabled':''}
-          aria-label="${mine?'You voted for':'Vote for'} ${r.name}. ${r.votes} votes">
-          ${mine?ICON.check:ICON.up}<span class="n">${r.votes}</span></button>
-      </div>`}).join('')
-      : `<div class="empty"><h2>Nothing back here yet</h2><p class="sub">Every entry so far is in the Top 20.</p></div>`}
-    </div>
-    ${DB.voted?`<div class="note">${ICON.info}<span>Your one vote is spent. A real build binds this to a verified phone number, not this browser.</span></div>`:''}
-    <div class="ctas mt5">
-      ${cta('Build Another','data-act="restart"')}
-      <button class="tlink" data-act="reset">Reset prototype data</button>
-    </div>`;
-  document.querySelectorAll('#board .row').forEach((row,i)=>syncStack(row.querySelector('.sw'),list[i].pick,false));
-}
-function route(){
-  const open=location.hash==='#leaderboard';
-  $('board').hidden=!open;
-  $('story').inert=open;                  // focus can never wander behind the overlay
-  if(!open) return;
-  renderBoard(); $('board').scrollTop=0; $('boardh').focus({preventScroll:true});
 }
 
 /* ============================ boot ============================ */
@@ -726,4 +667,3 @@ methodCopy();
 const setBarH=()=>document.documentElement.style.setProperty('--barH',$('bar').offsetHeight+'px');
 setBarH();                                         // synchronous, before first scroll
 new ResizeObserver(setBarH).observe($('bar'));     // then keep it honest
-addEventListener('hashchange',route); route();
