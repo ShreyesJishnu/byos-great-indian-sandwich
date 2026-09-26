@@ -3,5 +3,6 @@ PRODUCT.md
 DESIGN.md
 .impeccable/
 byos-qr.png
+byos-qr-live.png
 *.presnap.*
 .DS_Store

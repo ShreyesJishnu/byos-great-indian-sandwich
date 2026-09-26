@@ -307,14 +307,14 @@ function story(){
       <fieldset class="fieldset">
         <legend class="vh">Registration details</legend>
         ${regField('rname','Full name','As it should appear on your entry.',
-          'autocomplete="name" enterkeyhint="next" aria-describedby="rname-help"')}
+          'maxlength="60" autocomplete="name" enterkeyhint="next" aria-describedby="rname-help"')}
         ${regField('rphone','Mobile number','10 digits. We only use it to verify your entry.',
           'type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" '+
           'enterkeyhint="next" aria-describedby="rphone-help"','+91')}
         ${regField('remail','Email <span class="sub" style="font-size:14px">(optional)</span>','Only if you want a copy of your entry.',
-          'type="email" autocomplete="email" enterkeyhint="next" aria-describedby="remail-help"')}
+          'type="email" maxlength="120" autocomplete="email" enterkeyhint="next" aria-describedby="remail-help"')}
         ${regField('rcity','City','Where the sandwich was made.',
-          'autocomplete="address-level2" enterkeyhint="done" aria-describedby="rcity-help"')}
+          'maxlength="60" autocomplete="address-level2" enterkeyhint="done" aria-describedby="rcity-help"')}
         <div class="consent" id="consentbox" data-invalid="false">
           <input type="checkbox" id="rconsent" aria-describedby="rconsent-err">
           <label for="rconsent">I agree that Dr. Oetker India may store and use these details
@@ -584,7 +584,21 @@ function setErr(id,msg){
   p.innerHTML=msg?ICON.alert+'<span>'+msg+'</span>':HELP[id];
 }
 function check(id){const r=RULES[id](  $(id).value); setErr(id,r===true?'':r); return r===true}
+/* The consent gate is the one required control that is not in RULES, and it used
+   to be signalled by a red outline ALONE: no aria-invalid, and #rconsent-err —
+   despite its id — held permanent withdraw-consent boilerplate that never moved.
+   A screen-reader user who submitted unticked had focus thrown at the checkbox
+   and heard "You can withdraw consent at any time". On the legal gate. */
+function setConsent(ok){
+  const p=$('rconsent-err');
+  $('rconsent').setAttribute('aria-invalid',ok?'false':'true');
+  $('consentbox').dataset.invalid=ok?'false':'true';
+  p.className=ok?'help':'err';
+  p.innerHTML=ok?HELP.rconsent
+    :ICON.alert+'<span>Tick the box to enter — we need your consent to hold your details.</span>';
+}
 function wireValidation(){
+  HELP.rconsent=$('rconsent-err').innerHTML;
   Object.keys(RULES).forEach(id=>{
     HELP[id]=$(id+'-help').innerHTML;
     $(id).addEventListener('blur',()=>check(id));
@@ -592,7 +606,7 @@ function wireValidation(){
     $(id).addEventListener('input',()=>{if($(id).getAttribute('aria-invalid')==='true') check(id)});
   });
   $('rconsent').addEventListener('change',()=>{
-    if($('rconsent').checked) $('consentbox').dataset.invalid='false';
+    if($('rconsent').checked) setConsent(true);
   });
   $('rphone').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'')});
 }
@@ -600,7 +614,7 @@ function submit(){
   if(busy||submitted) return;
   const bad=Object.keys(RULES).filter(id=>!check(id));
   const consent=$('rconsent').checked;
-  $('consentbox').dataset.invalid=consent?'false':'true';
+  setConsent(consent);
   if(bad.length||!consent){
     const first=bad.length?$(bad[0]):$('rconsent');
     first.focus(); first.scrollIntoView({behavior:reduced()?'auto':'smooth',block:'center'});
@@ -630,7 +644,7 @@ function submit(){
 function confirmEntry(me){
   $('regwrap').innerHTML=`
     <div class="card center mt5">
-      <h2 tabindex="-1" id="donetitle">${me.name}</h2>
+      <h2 tabindex="-1" id="donetitle"></h2>
       <div class="code">${me.code}</div>
       <div class="center" style="margin-top:var(--s5);display:flex;justify-content:center">
         ${seal("You're<br>In",'lg')}</div>
@@ -642,6 +656,11 @@ function confirmEntry(me){
       ${cta('Build Another','data-act="restart"')}
       <button class="tlink" data-act="reset">Reset prototype data</button>
     </div>`;
+  // textContent, never interpolation: me.name is whatever the user typed into
+  // #sname. Interpolated into innerHTML it executed — "<img src=x onerror=...>"
+  // as a sandwich name ran. Harmless while DB.mine is local-only; the moment
+  // this block becomes the real POST /api/entries it is stored XSS.
+  $('donetitle').textContent=me.name;
   $('donetitle').focus({preventScroll:true});
   $('donetitle').scrollIntoView({behavior:reduced()?'auto':'smooth',block:'center'});
 }

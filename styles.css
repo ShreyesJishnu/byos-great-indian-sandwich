@@ -74,7 +74,7 @@ body{
 ::selection{background:var(--cream);color:var(--darkgray)}
 :root{scrollbar-color:var(--sage) transparent}
 ::-webkit-scrollbar{width:10px;height:10px}
-::-webkit-scrollbar-thumb{background:var(--sage);border-radius:99px;border:3px solid var(--paper)}
+::-webkit-scrollbar-thumb{background:var(--sage);border-radius:var(--r-pill);border:3px solid var(--paper)}
 ::-webkit-scrollbar-track{background:transparent}
 input{caret-color:var(--primary)}
 /* spec S11.5: terracotta focus ring, never Tailwind blue */
@@ -143,7 +143,7 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 /* ============ progress ============ */
 .prog{display:flex;gap:var(--s1);padding:var(--s3) var(--s4) 0;background:var(--white)}
 .prog[hidden]{display:none}
-.prog i{flex:1;height:4px;border-radius:99px;background:var(--hairline);overflow:hidden;position:relative}
+.prog i{flex:1;height:4px;border-radius:var(--r-pill);background:var(--hairline);overflow:hidden;position:relative}
 .prog i::after{content:"";position:absolute;inset:0;background:var(--primary);
   transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
 .prog i.on::after{transform:scaleX(1)}
@@ -202,7 +202,7 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
       element's own declared transform comes back untouched at the end. */
 @keyframes drop{
   0%  {translate:0 -38px;scale:.93 1.1;animation-timing-function:cubic-bezier(.45,0,.9,.55)}
-  55% {translate:0 0;scale:1.09 .72;animation-timing-function:cubic-bezier(0,0,.2,1)}
+  55% {translate:0 0;scale:1.09 .72;animation-timing-function:var(--ease-out)}
   76% {translate:0 -5px;scale:.985 1.05}
   100%{translate:0 0;scale:1}
 }
@@ -359,7 +359,7 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .cta:disabled .ring{border-color:var(--gray-500)}
 .cta .spin{display:inline-block;vertical-align:-3px;margin-right:6px;
   width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
-  border-radius:99px;animation:sp .7s linear infinite}
+  border-radius:var(--r-pill);animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ctas{display:flex;flex-direction:column;align-items:center;gap:0}
 
@@ -370,9 +370,19 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
   min-height:44px;padding:0 var(--s2);border:0;background:none;color:var(--darkgray);
   font-family:var(--font-neutral);font-weight:400;font-size:16px;line-height:1;
   letter-spacing:1.6px;text-transform:uppercase}
-.tlink::after{content:"";position:absolute;display:block;width:0;left:0;bottom:8px;
-  border-bottom:1px solid var(--primary);transition:.5s}
-.tlink:hover::after,.tlink:focus-visible::after{width:98%;left:1%}
+/* The growing underline is brand-mandated (DESIGN.md 650, 757: one of the three
+   things hover may do), so the BEHAVIOUR stays and only the implementation
+   changes. It used to transition `width` and `left` — both layout properties,
+   so every frame relaid out and repainted instead of staying on the compositor,
+   on the most-used affordance in the finale and on the mid-range Android this
+   campaign actually ships to. Geometry is now static at its final size and the
+   growth is a scaleX from the left edge: visually identical, compositor-only.
+   Same hook .prog i already uses at line 148. */
+.tlink::after{content:"";position:absolute;display:block;left:1%;width:98%;bottom:8px;
+  border-bottom:1px solid var(--primary);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .25s var(--ease)}
+.tlink:hover::after,.tlink:focus-visible::after{transform:scaleX(1)}
 
 /* ============ THE SEAL (spec S9.2) - 8-lobed mark ============ */
 .seal{position:relative;width:var(--sz,54px);height:var(--sz,54px);flex:0 0 auto;
@@ -418,7 +428,7 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
   border-radius:0 0 var(--r-card) var(--r-card);min-height:44px;flex:1 1 auto}
 .opt .name{display:block;font-family:var(--font-primary);font-weight:500;font-size:20px;
   line-height:26px;letter-spacing:.6px;color:var(--darkgray)}
-.opt .tick{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:99px;
+.opt .tick{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:var(--r-pill);
   background:var(--campaign);color:#fff;display:none;place-items:center;z-index:3}
 .opt[aria-pressed=true] .tick{display:grid}
 .opt[aria-pressed=true]{outline:2px solid var(--primary);outline-offset:-2px}
@@ -684,7 +694,7 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
    no shadow — and they are real paging buttons, not decoration. The glyph is the
    brand's own bow with a knife tip on it, never a generic chevron. */
 .nudge{position:absolute;top:50%;transform:translateY(-50%);z-index:4;
-  width:44px;height:44px;border-radius:99px;padding:0;
+  width:44px;height:44px;border-radius:var(--r-pill);padding:0;
   background:var(--white);border:1px solid var(--sage);color:var(--primary);
   display:grid;place-items:center;
   transition:background .15s var(--ease),color .15s var(--ease)}
@@ -824,4 +834,34 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
      user's finger; kill the smoothing, keep the snapping */
   html{scroll-behavior:auto}
   .rail{scroll-behavior:auto}
+}
+
+/* ============ short viewports: landscape phones and the 568px class ============
+   --counterH's 252px FLOOR does not scale down, and .stepin is sticky at
+   (--barH + --counterH) with a ~374px block under it. Measured at rest:
+   375x480 pushed 197px of that block below the fold and 320x568 pushed 129px —
+   in both cases the option card's name and its "On the board" chip, i.e. the
+   entire readable payload of the control, were off-screen at the snap position.
+
+   The floor is NOT lowered globally, because .step's min-height
+   max(100svh - --barH, --counterH + 400px) leans on the second term to stay
+   above the IntersectionObserver's 0.909x-viewport one-live-step threshold:
+   at 320x568 the first term is only 497px against a 516px requirement, so the
+   652px from the second term is what holds the guarantee. Keeping --counterH
+   at 180px keeps that term at 580px — 1.02x viewport at 568, 1.21x at 480,
+   both still clear. Verified by measurement at all nine tested sizes.
+
+   The worktop shrinks through --s, the same scale hook the width breakpoints
+   already drive, so the 2.5D renderer and the 52px .sw.sm thumbnails are
+   untouched. */
+@media (max-height:640px){
+  :root{--counterH:clamp(180px,34svh,230px)}
+  .counter .sw,.plate .sw{--s:.62}
+  .steph{font-size:22px;line-height:26px}
+  .step .meta{margin-bottom:var(--s1)}
+  .tray{margin-top:var(--s3);padding:var(--s3) 0 var(--s4)}
+  .rail .opt .swatch{height:76px}
+  .rail .opt .swatch img{height:72px}
+  .rail .opt .foot{min-height:68px}
+  .hint{margin-top:var(--s2)}
 }

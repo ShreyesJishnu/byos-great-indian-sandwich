@@ -1,2 +1,14 @@
+# The concept is unreleased. The whole site is closed to crawlers on purpose,
+# and index.html carries a matching <meta name="robots" content="noindex, nofollow">.
+#
+# AT LAUNCH, do all three or none:
+#   1. change "Disallow: /" below to "Allow: /"
+#   2. delete the noindex/nofollow meta from index.html AND 404.html
+#   3. re-check <link rel="canonical"> and sitemap.xml still point at the live origin
+# Leaving the meta in place while opening robots.txt is worse than either - the
+# crawler is then allowed in only to be told not to index what it finds.
+
 User-agent: *
 Disallow: /
+
+Sitemap: https://shreyesjishnu.github.io/byos-great-indian-sandwich/sitemap.xml

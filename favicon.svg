@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="The Great Indian Sandwich">
+  <!-- Campaign glyph, not the corporate mark: the Dr. Oetker oval is a pale ring with an
+       illegible wordmark at 16px (checked). Palette is DESIGN.md only:
+       campaign #ED1C24, cream #EFDBB2, terracotta #A45A2A. -->
+  <rect width="64" height="64" rx="16" fill="#ED1C24"/>
+  <path d="M11 33c0-12 9.5-19 21-19s21 7 21 19z" fill="#EFDBB2"/>
+  <rect x="11" y="33" width="42" height="10" fill="#A45A2A"/>
+  <rect x="11" y="43" width="42" height="11" rx="5.5" fill="#EFDBB2"/>
+</svg>

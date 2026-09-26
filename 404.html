@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ED1C24">
+<meta name="color-scheme" content="light">
+<title>Not on the counter &middot; The Great Indian Sandwich</title>
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- Standalone by design: no app.js, no styles.css, two fonts instead of four.
+     Paths are relative, which resolves correctly for a 404 one level under the
+     project root (the realistic case). A deeper miss falls back to the
+     metric-matched Arial faces and still reads. -->
+<style>
+@font-face{font-family:"MomentsDisplay";font-style:normal;font-weight:700;font-display:swap;
+  src:url("fonts/MomentsDisplay-700.woff2") format("woff2")}
+@font-face{font-family:"MomentsText";font-style:normal;font-weight:400;font-display:swap;
+  src:url("fonts/MomentsText-400.woff2") format("woff2")}
+@font-face{font-family:"MomentsDisplay Fallback";src:local("Arial");
+  ascent-override:115.99%;descent-override:29.97%;line-gap-override:0%;size-adjust:82.07%}
+@font-face{font-family:"MomentsText Fallback";src:local("Arial");
+  ascent-override:95.64%;descent-override:24.44%;line-gap-override:0%;size-adjust:99.44%}
+
+:root{
+  --font-primary:"MomentsDisplay","MomentsDisplay Fallback",Arial,sans-serif;
+  --font-neutral:"MomentsText","MomentsText Fallback",Arial,sans-serif;
+  --primary:#A45A2A;--primary-ink:#FFFFFF;--darkgray:#292B29;--gray-500:#5A5E5A;
+  --white:#FFFFFF;--paper:#FDF9F4;--sage:#BBC4BA;--campaign:#ED1C24;--campaign-ink:#FFFFFF;
+  --r-pill:100px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--darkgray);
+  font:400 16px/1.5 var(--font-neutral);-webkit-text-size-adjust:100%}
+::selection{background:#EFDBB2;color:var(--darkgray)}
+
+.app{max-width:440px;margin:0 auto;overflow-x:clip}
+@media(min-width:768px){.app{max-width:620px}}
+
+/* header: white, 1px sage rule drawn as a box-shadow, verbatim from the app */
+.bar{display:flex;align-items:center;gap:12px;background:var(--white);
+  padding:calc(env(safe-area-inset-top) + 10px) var(--s4) 10px;box-shadow:var(--sage) 0 1px 0}
+.bar img{width:78px;height:51px;object-fit:contain}
+.bar b{font:400 12px/1 var(--font-neutral);letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--gray-500)}
+
+/* the campaign-red block, closed by the brand's own curve */
+.heroblock{background:var(--campaign);color:var(--campaign-ink);
+  padding:var(--s7) var(--s4) 64px;text-align:center;
+  clip-path:url(#curve-mask-bottom-mobile)}
+@media(min-width:768px){.heroblock{clip-path:url(#curve-mask-bottom-desktop);padding-bottom:88px}}
+/* 34px/700 white on #ED1C24 is 4.38:1 - legal only above the large-text line. The 19px Rule. */
+.heroblock h1{margin:0;font:700 34px/40px var(--font-primary);text-wrap:balance}
+@media(min-width:768px){.heroblock h1{font-size:46px;line-height:52px}}
+.code{display:block;margin-top:var(--s4);
+  font:400 14px/20px var(--font-neutral);letter-spacing:2.1px;text-transform:uppercase}
+
+main{padding:var(--s5) var(--s4) calc(env(safe-area-inset-bottom) + 40px);text-align:center}
+main p{margin:0 auto var(--s6);max-width:40ch;color:var(--darkgray)}
+
+/* the two-part CTA, 110px box / 50px pill / inset 5px hairline ring.
+   No .mt-cta here: the -50px overlap is for straddling a block edge, and the
+   only thing above this CTA is body copy, which it would sit on top of. */
+.ctas{display:flex;flex-direction:column;align-items:center}
+.cta{position:relative;display:flex;align-items:center;justify-content:center;
+  height:110px;width:100%;max-width:250px;min-width:150px;
+  background:none;border:0;padding:0;cursor:pointer;text-decoration:none}
+.cta span{display:flex;align-items:center;justify-content:center;
+  width:100%;height:50px;border-radius:var(--r-pill);
+  background:var(--primary);color:var(--primary-ink);
+  font:400 12px/1 var(--font-neutral);letter-spacing:1.8px;text-transform:uppercase;
+  transition:background .15s var(--ease)}
+.cta::after{content:"";position:absolute;left:5px;right:5px;height:40px;
+  border:1px solid rgba(255,255,255,.9);border-radius:var(--r-pill);pointer-events:none}
+.cta:hover span{background:#8E4D24}
+.cta:active span{transform:scale(.985)}
+@media(min-width:768px){.cta span{font-size:14px;letter-spacing:2.1px}}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px}
+
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+ <defs>
+  <clipPath id="curve-mask-bottom-mobile" clipPathUnits="objectBoundingBox">
+   <path d="M 0 0 H 1.0047 v 0.93 C 1.0047 0.93 0.7374 0.98 0.506 0.98 C 0.2673 0.98 0 0.93 0 0.93 V 0"/>
+  </clipPath>
+  <clipPath id="curve-mask-bottom-desktop" clipPathUnits="objectBoundingBox">
+   <path d="M 0 0 H 1 V 0.84 C 1 0.84 0.771 1 0.5 1 C 0.226 1 0 0.84 0 0.84 V 0"/>
+  </clipPath>
+ </defs>
+</svg>
+
+<div class="app">
+  <header class="bar">
+    <img src="assets/dr-oetker-logo.webp" width="78" height="51" alt="Dr. Oetker" fetchpriority="high">
+    <b>The Great Indian Sandwich</b>
+  </header>
+
+  <div class="heroblock">
+    <h1>This one never left the kitchen.</h1>
+    <span class="code">Error 404</span>
+  </div>
+
+  <main>
+    <p>Whatever you came for isn&rsquo;t on the counter. Somebody may well have eaten it.
+       Go back and build one that gets remembered.</p>
+    <div class="ctas">
+      <a class="cta" href="./"><span>Back to the kitchen</span></a>
+    </div>
+  </main>
+</div>
+</body>
+</html>
