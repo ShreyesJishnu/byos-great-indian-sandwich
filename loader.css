@@ -9,7 +9,8 @@
    styles.css, not a second copy of it. If the real stack's palette moves,
    move these five --fill pairs by hand. */
 
-#ldr{position:fixed;inset:0;z-index:9999;background:#FDF9F4;
+/* 30: one step above the header bar (20), which is the top of the app's scale. */
+#ldr{position:fixed;inset:0;z-index:30;background:#FDF9F4;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:28px;padding:24px 16px;opacity:1;transition:opacity .38s cubic-bezier(.4,0,.2,1)}
 #ldr.out{opacity:0}

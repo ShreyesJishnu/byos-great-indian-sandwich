@@ -58,13 +58,12 @@
     </div>
   </div>
 </div>
-<!-- THE CURVE, deployment (c): objectBoundingBox clip paths, verbatim from oetker.in <defs>.
-     Mobile and desktop variants; the class swaps id at 768px (spec S9.1c). -->
+<!-- THE CURVE, deployment (c): objectBoundingBox clip path, verbatim from oetker.in <defs>.
+     One amplitude for the whole build. The shallow mobile variant was removed: it rendered
+     11.5px against the desktop path's 36.8px on two stacked 230px blocks of the same screen,
+     and the shallower one read as a failed render rather than a choice. -->
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
  <defs>
-  <clipPath id="curve-mask-bottom-mobile" clipPathUnits="objectBoundingBox">
-   <path d="M 0 0 H 1.0047 v 0.93 C 1.0047 0.93 0.7374 0.98 0.506 0.98 C 0.2673 0.98 0 0.93 0 0.93 V 0"/>
-  </clipPath>
   <clipPath id="curve-mask-bottom-desktop" clipPathUnits="objectBoundingBox">
    <path d="M 0 0 H 1 V 0.84 C 1 0.84 0.771 1 0.5 1 C 0.226 1 0 0.84 0 0.84 V 0"/>
   </clipPath>

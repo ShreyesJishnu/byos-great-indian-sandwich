@@ -21,9 +21,13 @@ const STEPS=[
    {id:'friedonion',n:'Fried Onion',c:'#C9852F'},{id:'namkeen',n:'Namkeen',c:'#D9B24A'}]}
 ];
 const OPT={}; STEPS.forEach(s=>s.opts.forEach(o=>OPT[s.key+':'+o.id]=o));
-const NAMES={mayo:{orig:'Classic',burger:'Burger-Style',garlic:'Garlicky',tandoori:'Tandoori'},
-             filling:{aloo:'Aloo',paneer:'Paneer',chicken:'Chicken',veggies:'Veggie'},
-             tail:['Crunch','Stack','Special','Bomb','Deluxe']};
+/* Only the tail is invented. The mayo and the filling read their names straight
+   out of OPT, the same table the tag pills read, because there was a second
+   naming table here and the finale printed both 40px apart: "Classic Paneer
+   Bomb" over a pill saying "Original Mayo", "Garlicky" over "Garlic Mayo",
+   "Veggie" over "Veggies". One product set, one name. */
+const TAILS=['Crunch','Stack','Special','Bomb','Deluxe'];
+const optn=(k,id)=>(OPT[k+':'+id]||{}).n;
 /* mymuesli pattern: curated starting points so nobody faces a blank canvas */
 const PRESETS=[
  {n:'Bombay Tandoori',d:'Sourdough, paneer and smoky tandoori mayo',shot:'assets/dish-tandoori.webp',
@@ -81,9 +85,9 @@ const DB={
  set mine(v){localStorage.setItem('gis_mine',JSON.stringify(v))}
 };
 const sig=p=>[p.bread,p.mayo,p.filling,[...p.veg].sort().join('-'),[...p.crunch].sort().join('-')].join('|');
-const title=p=>`${NAMES.mayo[p.mayo]} ${NAMES.filling[p.filling]} ${p.crunch.length?NAMES.tail[(p.crunch.length+p.veg.length)%NAMES.tail.length]:'Sandwich'}`;
+const title=p=>`${optn('mayo',p.mayo)} ${optn('filling',p.filling)} ${p.crunch.length?TAILS[(p.crunch.length+p.veg.length)%TAILS.length]:'Sandwich'}`;
 function code(s,p){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;
-  return '#'+((NAMES.mayo[p.mayo]||'X')[0]+(NAMES.filling[p.filling]||'X')[0]+'S').toUpperCase()+(h%1000+'').padStart(3,'0')}
+  return '#'+((optn('mayo',p.mayo)||'X')[0]+(optn('filling',p.filling)||'X')[0]+'S').toUpperCase()+(h%1000+'').padStart(3,'0')}
 
 /* ============ Smart Mouth pattern: every layer in the DOM, toggled by display ============ */
 /* .layers is flex column-reverse, so SPEC runs BOTTOM of the sandwich first.
@@ -239,7 +243,7 @@ const regField=(id,label,help,attrs,prefix)=>`
 function story(){
   $('main').innerHTML=`
   <section class="opening" aria-labelledby="h1">
-    <div class="hero bleed curve-deep">
+    <div class="hero bleed curve-b">
       <img src="assets/hero-sandwich.webp" width="800" height="481"
            alt="A grilled tandoori paneer sandwich, cut and stacked" fetchpriority="high">
     </div>
@@ -258,7 +262,7 @@ function story(){
     <p class="sub">Slide through, tap one, then change anything you like as you go.</p>
     <div class="presets">${PRESETS.map((p,i)=>`
       <button class="preset" data-preset="${i}">
-        <span class="shot"><img src="${p.shot}" alt="${p.alt}" loading="lazy" width="360" height="216">
+        <span class="shot"><img src="${p.shot}" alt="${p.alt}" loading="lazy" width="360" height="217">
           <span class="thumb">${stackHTML('sm')}</span></span>
         <span class="foot">${ARC}<b>${p.n}</b><span>${p.d}</span></span>
       </button>`).join('')}</div>

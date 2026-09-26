@@ -55,7 +55,7 @@
    the same move the hero block's clip-path makes, at card-footer scale. */
 .finale > .tags::after{
   content:"";position:absolute;top:calc(100% - 1px);left:0;
-  width:100%;height:17px;background:var(--gold);transform:scaleY(-1);
+  width:100%;height:16px;background:var(--gold);transform:scaleY(-1);
   pointer-events:none;
   -webkit-mask-image:var(--arc-svg); mask-image:var(--arc-svg);
   -webkit-mask-repeat:no-repeat;    mask-repeat:no-repeat;
@@ -69,7 +69,7 @@
 
 /* ---------------------------------------------------------------------------
    3. THE FORM PANEL.
-   #F4F5F4 cool off-white, 0 0 16px 16px, margin-top 28px, the arc on its own
+   #F4F5F4 cool off-white, 0 0 16px 16px, margin-top 32px, the arc on its own
    top edge in its own fill. The panel is what gives the white pill inputs a
    surface step instead of leaving them to float on paper. It owns every one of
    those values outright — it inherits nothing, so it is unaffected by anything
@@ -80,12 +80,12 @@
   position:relative;
   background:var(--coolgray);
   border-radius:0 0 var(--r-card) var(--r-card);
-  margin-top:28px;
+  margin-top:var(--s6);
   padding:var(--s5) var(--s4) var(--s6);
 }
 .finale .fieldset::before{
   content:"";position:absolute;bottom:calc(100% - 1px);left:0;
-  width:100%;height:17px;background:var(--coolgray);pointer-events:none;
+  width:100%;height:16px;background:var(--coolgray);pointer-events:none;
   -webkit-mask-image:var(--arc-svg); mask-image:var(--arc-svg);
   -webkit-mask-repeat:no-repeat;    mask-repeat:no-repeat;
   -webkit-mask-size:100% 100%;      mask-size:100% 100%;

@@ -27,7 +27,7 @@
 :root{
   --font-primary:"MomentsDisplay","MomentsDisplay Fallback",Arial,sans-serif;
   --font-neutral:"MomentsText","MomentsText Fallback",Arial,sans-serif;
-  --primary:#A45A2A;--primary-ink:#FFFFFF;--darkgray:#292B29;--gray-500:#5A5E5A;
+  --primary:#A45A2A;--primary-ink:#FFFFFF;--primary-hover:#8E4D24;--darkgray:#292B29;--gray-500:#5A5E5A;
   --white:#FFFFFF;--paper:#FDF9F4;--sage:#BBC4BA;--campaign:#ED1C24;--campaign-ink:#FFFFFF;
   --r-pill:100px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;
   --ease:cubic-bezier(.4,0,.2,1);
@@ -51,8 +51,8 @@ body{background:var(--paper);color:var(--darkgray);
 /* the campaign-red block, closed by the brand's own curve */
 .heroblock{background:var(--campaign);color:var(--campaign-ink);
   padding:var(--s7) var(--s4) 64px;text-align:center;
-  clip-path:url(#curve-mask-bottom-mobile)}
-@media(min-width:768px){.heroblock{clip-path:url(#curve-mask-bottom-desktop);padding-bottom:88px}}
+  clip-path:url(#curve-mask-bottom-desktop)}
+@media(min-width:768px){.heroblock{padding-bottom:88px}}
 /* 34px/700 white on #ED1C24 is 4.38:1 - legal only above the large-text line. The 19px Rule. */
 .heroblock h1{margin:0;font:700 34px/40px var(--font-primary);text-wrap:balance}
 @media(min-width:768px){.heroblock h1{font-size:46px;line-height:52px}}
@@ -68,7 +68,8 @@ main p{margin:0 auto var(--s6);max-width:40ch;color:var(--darkgray)}
 .ctas{display:flex;flex-direction:column;align-items:center}
 .cta{position:relative;display:flex;align-items:center;justify-content:center;
   height:110px;width:100%;max-width:250px;min-width:150px;
-  background:none;border:0;padding:0;cursor:pointer;text-decoration:none}
+  background:none;border:0;padding:0;cursor:pointer;text-decoration:none;
+  transition:scale 120ms var(--ease)}
 .cta span{display:flex;align-items:center;justify-content:center;
   width:100%;height:50px;border-radius:var(--r-pill);
   background:var(--primary);color:var(--primary-ink);
@@ -76,8 +77,9 @@ main p{margin:0 auto var(--s6);max-width:40ch;color:var(--darkgray)}
   transition:background .15s var(--ease)}
 .cta::after{content:"";position:absolute;left:5px;right:5px;height:40px;
   border:1px solid rgba(255,255,255,.9);border-radius:var(--r-pill);pointer-events:none}
-.cta:hover span{background:#8E4D24}
-.cta:active span{transform:scale(.985)}
+.cta:hover span{background:var(--primary-hover)}
+/* press: the whole control, on `scale`, 120ms. The ring is ::after and stays put otherwise. */
+.cta:active{scale:.985}
 @media(min-width:768px){.cta span{font-size:14px;letter-spacing:2.1px}}
 :focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px}
 
@@ -87,9 +89,6 @@ main p{margin:0 auto var(--s6);max-width:40ch;color:var(--darkgray)}
 <body>
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
  <defs>
-  <clipPath id="curve-mask-bottom-mobile" clipPathUnits="objectBoundingBox">
-   <path d="M 0 0 H 1.0047 v 0.93 C 1.0047 0.93 0.7374 0.98 0.506 0.98 C 0.2673 0.98 0 0.93 0 0.93 V 0"/>
-  </clipPath>
   <clipPath id="curve-mask-bottom-desktop" clipPathUnits="objectBoundingBox">
    <path d="M 0 0 H 1 V 0.84 C 1 0.84 0.771 1 0.5 1 C 0.226 1 0 0.84 0 0.84 V 0"/>
   </clipPath>
