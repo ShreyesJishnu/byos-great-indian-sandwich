@@ -6,10 +6,10 @@ const STEPS=[
  /* the four real FunFoods SKUs, as transparent studio cutouts. A brand person
     seeing their own jar here is worth more than any amount of colour work. */
  {key:'mayo',title:'Your Mayo',hint:'Choose one.',multi:false,opts:[
-   {id:'orig',n:'Original',c:'#F4ECD2',img:'assets/mayo-orig.webp',alt:'Dr. Oetker FunFoods Veg Mayonnaise Original'},
-   {id:'burger',n:'Burger',c:'#F0D98A',img:'assets/mayo-burger.webp',alt:'Dr. Oetker FunFoods Veg Mayonnaise Burger'},
-   {id:'garlic',n:'Garlic',c:'#EEF2DF',img:'assets/mayo-garlic.webp',alt:'Dr. Oetker FunFoods Veg Garlic Mayonnaise'},
-   {id:'tandoori',n:'Tandoori',c:'#E07A3F',img:'assets/mayo-tandoori.webp',alt:'Dr. Oetker FunFoods Veg Mayonnaise Tandoori Masala'}]},
+   {id:'orig',n:'Original',c:'#F4ECD2',img:'assets/mayo-orig.webp',alt:'Dr.&nbsp;Oetker FunFoods Veg Mayonnaise Original'},
+   {id:'burger',n:'Burger',c:'#F0D98A',img:'assets/mayo-burger.webp',alt:'Dr.&nbsp;Oetker FunFoods Veg Mayonnaise Burger'},
+   {id:'garlic',n:'Garlic',c:'#EEF2DF',img:'assets/mayo-garlic.webp',alt:'Dr.&nbsp;Oetker FunFoods Veg Garlic Mayonnaise'},
+   {id:'tandoori',n:'Tandoori',c:'#E07A3F',img:'assets/mayo-tandoori.webp',alt:'Dr.&nbsp;Oetker FunFoods Veg Mayonnaise Tandoori Masala'}]},
  {key:'filling',title:'Your Filling',hint:'Choose one.',multi:false,opts:[
    {id:'aloo',n:'Aloo',c:'#E8C15A'},{id:'paneer',n:'Paneer',c:'#F5EDD4'},
    {id:'chicken',n:'Chicken',c:'#D99A56'},{id:'veggies',n:'Veggies',c:'#D3763F'}]},
@@ -212,7 +212,7 @@ const stepHTML=s=>`
 <section class="step" id="step-${s.key}" data-step="${s.key}" aria-labelledby="h-${s.key}">
  <div class="stepin">
   <h2 class="steph" id="h-${s.key}">${s.title}</h2>
-  <p class="meta">Step ${s.i+1} of ${STEPS.length} &middot; ${s.hint}</p>
+  <p class="meta">Step&nbsp;${s.i+1}&nbsp;of&nbsp;${STEPS.length} &middot; ${s.hint}</p>
   <div class="tray">${ARC}
     <div class="railwrap">
       <button class="nudge prev" data-nudge="-1" aria-label="Previous option">${ICON.arcL}</button>
@@ -248,7 +248,7 @@ function story(){
       <h1 class="display on-hero" id="h1" tabindex="-1">The Great Indian Sandwich</h1>
     </div>
     <p class="lede mt5">Five picks, one sandwich, and a name on it. Scroll to cook &mdash; the
-      counter is set. A Dr. Oetker jury reads every entry, and the builds they find most
+      counter is set. A Dr.&nbsp;Oetker jury reads every entry, and the builds they find most
       interesting get made for real.</p>
     <div class="cue" aria-hidden="true"><span class="lbl">Scroll to start</span><span class="ln"></span>${ICON.arcD}</div>
   </section>
@@ -269,7 +269,7 @@ function story(){
     <ol>
       <li>${seal(1)}<p>Scroll down. Each step adds a layer.</p></li>
       <li>${seal(2)}<p>Swipe sideways. The middle one goes on.</p></li>
-      <li>${seal(3)}<p>Name it at the bottom. You're in.</p></li>
+      <li>${seal(3)}<p>Name it at the bottom. You&rsquo;re in.</p></li>
     </ol>
   </section>
   <p class="center" style="margin:var(--s5) 0 0">
@@ -287,7 +287,7 @@ function story(){
        sticky container that has to END here, so the worktop can clear the top of
        the screen before the plate enters from the bottom. Inside .build it only
        made the counter stick for longer and both sandwiches showed at once. -->
-  <div class="closing"><p>That's everything. Close it up &mdash; keep scrolling.</p>
+  <div class="closing"><p>That&rsquo;s everything. Close it up &mdash; keep scrolling.</p>
     <ol class="method" id="method" aria-label="Your sandwich, as a method"></ol></div>
 
   <section class="finale" id="finale" aria-labelledby="h-fin">
@@ -295,29 +295,31 @@ function story(){
     <h2 id="h-fin" tabindex="-1">Your Sandwich</h2>
     <div class="code" id="fincode"></div>
     <div class="tags" id="fintags"></div>
-    <div id="regwrap">
+    <form id="regwrap" novalidate>
       <div class="field">
         <label for="sname">Name your sandwich</label>
-        <input id="sname" maxlength="42" enterkeyhint="next" autocomplete="off"
-               aria-describedby="sname-help">
-        <p class="help" id="sname-help">Leave it as it is and we'll use the name above.</p>
+        <input id="sname" name="sandwichName" maxlength="42" enterkeyhint="next"
+               autocomplete="off" spellcheck="false" aria-describedby="sname-help">
+        <p class="help" id="sname-help">Leave it as it is and we&rsquo;ll use the name above.</p>
       </div>
-      <h2 class="minor">Your Details</h2>
+      <h3 class="minor">Your Details</h3>
       <p class="sub">So we can reach you if a jury picks yours.</p>
       <fieldset class="fieldset">
         <legend class="vh">Registration details</legend>
         ${regField('rname','Full name','As it should appear on your entry.',
-          'maxlength="60" autocomplete="name" enterkeyhint="next" aria-describedby="rname-help"')}
-        ${regField('rphone','Mobile number','10 digits. We only use it to verify your entry.',
-          'type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" '+
+          'name="fullName" maxlength="60" autocomplete="name" spellcheck="false" '+
+          'enterkeyhint="next" aria-describedby="rname-help"')}
+        ${regField('rphone','Mobile number','10&nbsp;digits. We only use it to verify your entry.',
+          'type="tel" name="phone" inputmode="numeric" maxlength="10" autocomplete="tel-national" '+
           'enterkeyhint="next" aria-describedby="rphone-help"','+91')}
         ${regField('remail','Email <span class="sub" style="font-size:14px">(optional)</span>','Only if you want a copy of your entry.',
-          'type="email" maxlength="120" autocomplete="email" enterkeyhint="next" aria-describedby="remail-help"')}
+          'type="email" name="email" maxlength="120" autocomplete="email" spellcheck="false" '+
+          'autocapitalize="off" enterkeyhint="next" aria-describedby="remail-help"')}
         ${regField('rcity','City','Where the sandwich was made.',
-          'maxlength="60" autocomplete="address-level2" enterkeyhint="done" aria-describedby="rcity-help"')}
+          'name="city" maxlength="60" autocomplete="address-level2" enterkeyhint="done" aria-describedby="rcity-help"')}
         <div class="consent" id="consentbox" data-invalid="false">
-          <input type="checkbox" id="rconsent" aria-describedby="rconsent-err">
-          <label for="rconsent">I agree that Dr. Oetker India may store and use these details
+          <input type="checkbox" id="rconsent" name="consent" aria-describedby="rconsent-err">
+          <label for="rconsent">I agree that Dr.&nbsp;Oetker India may store and use these details
             to run this contest and contact me about my entry.</label>
         </div>
         <p class="help" id="rconsent-err" style="padding-left:0">You can withdraw consent at any
@@ -326,7 +328,7 @@ function story(){
       <div class="ctas mt5">
         ${cta('Submit Entry','data-act="submit"')}
       </div>
-    </div>
+    </form>
   </section>
   <small class="fine">Prototype &middot; data stays in this browser</small>`;
 
@@ -472,7 +474,9 @@ document.addEventListener('click',e=>{
   }
   if(t.dataset.preset!==undefined) return usePreset(+t.dataset.preset);
   switch(t.dataset.act){
-    case 'submit':  return submit();
+    // inside <form id="regwrap">: the native submit event already routes here,
+    // so answering the click too would run submit() twice on an invalid form
+    case 'submit':  return t.form?undefined:submit();
     case 'share':   return share();
     case 'restart': location.hash=''; return location.reload();
     case 'reset':
@@ -580,7 +584,10 @@ function setErr(id,msg){
         row=wrap.querySelector('.pillrow'), p=$(id+'-help');
   el.setAttribute('aria-invalid',msg?'true':'false');
   if(row) row.dataset.invalid=msg?'true':'false';
+  // role BEFORE content: blur-validation fires on the field the user just LEFT,
+  // so aria-describedby alone announces to nobody. The live region is the paragraph.
   p.className=msg?'err':'help';
+  msg?p.setAttribute('role','alert'):p.removeAttribute('role');
   p.innerHTML=msg?ICON.alert+'<span>'+msg+'</span>':HELP[id];
 }
 function check(id){const r=RULES[id](  $(id).value); setErr(id,r===true?'':r); return r===true}
@@ -594,6 +601,7 @@ function setConsent(ok){
   $('rconsent').setAttribute('aria-invalid',ok?'false':'true');
   $('consentbox').dataset.invalid=ok?'false':'true';
   p.className=ok?'help':'err';
+  ok?p.removeAttribute('role'):p.setAttribute('role','alert');
   p.innerHTML=ok?HELP.rconsent
     :ICON.alert+'<span>Tick the box to enter — we need your consent to hold your details.</span>';
 }
@@ -608,7 +616,28 @@ function wireValidation(){
   $('rconsent').addEventListener('change',()=>{
     if($('rconsent').checked) setConsent(true);
   });
-  $('rphone').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'')});
+  // novalidate: the inline RULES own validation, the browser bubble must stay out.
+  // This is what makes enterkeyhint="done" on #rcity and implicit Enter-submit real.
+  $('regwrap').addEventListener('submit',e=>{e.preventDefault(); submit()});
+  /* Pasting from Contacts carries the country code: "+91 98765 43210" arrived as
+     919876543210 — 12 chars, past the field's own maxlength, because a script-set
+     value bypasses it — and blur then called a valid number invalid. Strip to
+     digits, drop a leading 0 then a leading 91, clamp to 10. Both drops are
+     gated on length>10 so typing "9","1" digit by digit is never rewritten. */
+  $('rphone').addEventListener('input',e=>{
+    const el=e.target, v=el.value, caret=el.selectionStart, n=normPhone(v);
+    if(n===v) return;                        // already clean: never touch the caret
+    el.value=n;
+    if(caret<v.length){                      // mid-edit: hold the caret, don't jump to the end
+      const at=Math.min(caret,n.length); el.setSelectionRange(at,at);
+    }
+  });
+}
+function normPhone(v){
+  let d=v.replace(/\D/g,'');
+  if(d.length>10&&d[0]==='0')        d=d.slice(1);   // 098765 43210
+  if(d.length>10&&d.slice(0,2)==='91') d=d.slice(2); // +91 98765 43210
+  return d.slice(0,10);
 }
 function submit(){
   if(busy||submitted) return;
@@ -622,7 +651,8 @@ function submit(){
   }
   busy=true;
   const btn=document.querySelector('[data-act=submit]');
-  btn.disabled=true; btn.querySelector('.pill').innerHTML='<span class="spin"></span>Creating';
+  btn.disabled=true; btn.setAttribute('aria-busy','true');
+  btn.querySelector('.pill').innerHTML='<span class="spin"></span>Creating&hellip;';
   setTimeout(()=>{                                  // ponytail: stands in for POST /api/entries
     const given=$('sname').value.trim();
     // the body of that POST: the sandwich, plus the lead the jury has to reach.
@@ -647,14 +677,14 @@ function confirmEntry(me){
       <h2 tabindex="-1" id="donetitle"></h2>
       <div class="code">${me.code}</div>
       <div class="center" style="margin-top:var(--s5);display:flex;justify-content:center">
-        ${seal("You're<br>In",'lg')}</div>
+        ${seal('You&rsquo;re<br>In','lg')}</div>
     </div>
     <div class="note">${ICON.info}<span><b>Keep this code.</b> It is how we find your sandwich.
       If the jury picks yours, we will call the number you gave.</span></div>
     <div class="ctas mt5">
-      ${cta('Share It','data-act="share"')}
-      ${cta('Build Another','data-act="restart"')}
-      <button class="tlink" data-act="reset">Reset prototype data</button>
+      ${cta('Share It','type="button" data-act="share"')}
+      ${cta('Build Another','type="button" data-act="restart"')}
+      <button type="button" class="tlink" data-act="reset">Reset prototype data</button>
     </div>`;
   // textContent, never interpolation: me.name is whatever the user typed into
   // #sname. Interpolated into innerHTML it executed — "<img src=x onerror=...>"
@@ -686,3 +716,16 @@ methodCopy();
 const setBarH=()=>document.documentElement.style.setProperty('--barH',$('bar').offsetHeight+'px');
 setBarH();                                         // synchronous, before first scroll
 new ResizeObserver(setBarH).observe($('bar'));     // then keep it honest
+
+/* Android pull-to-refresh is live at scroll 0 and every pick and typed field is
+   in memory only, so one accidental overscroll at the hero used to destroy the
+   whole build. overscroll-behavior-y:contain (styles.css) stops the gesture;
+   this catches every other accidental leave. Armed only once a pick exists or a
+   field is dirty — never on a clean load, and never once the entry is filed. */
+addEventListener('beforeunload',e=>{
+  if(submitted) return;
+  const dirty=STEPS.some(s=>s.multi?pick[s.key].length:pick[s.key])
+    ||['sname','rname','rphone','remail','rcity'].some(id=>$(id)&&$(id).value.trim());
+  if(!dirty) return;
+  e.preventDefault(); e.returnValue='';
+});

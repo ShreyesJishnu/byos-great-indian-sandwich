@@ -9,7 +9,7 @@
        h2#h-fin  .code#fincode  .tags#fintags        <- the reveal
        #regwrap
          .field (name your sandwich)
-         h2.minor + p.sub
+         h3.minor + p.sub
          fieldset.fieldset          <- 4 .field, .consent, .help
          .ctas  (button.cta)
 
@@ -43,6 +43,9 @@
   color:var(--darkgray);
 }
 .finale > #h-fin{margin-block:0;padding-top:var(--s5);text-wrap:balance}
+/* maxlength is 42, so 42 unbroken characters is reachable by typing: measured
+   422px inside a 390px parent, 32px out of column. */
+.finale h2,#donetitle{overflow-wrap:anywhere}
 .finale > .code{margin-block:0;padding-top:var(--s2)}
 .finale > .code:empty{padding-top:0}
 .finale > .tags{margin-block:0;padding-top:var(--s4);padding-bottom:var(--s5)}

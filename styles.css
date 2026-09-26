@@ -65,7 +65,15 @@
 }
 
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;
+  /* vertical overscroll never chains to the browser: Android pull-to-refresh at
+     scroll 0 would take the whole in-memory build with it. The -x axis is set on
+     the rails (line ~668); this is the axis that never got it. */
+  overscroll-behavior-y:contain;
+  /* the UA default rgba(0,0,0,.18) fired a grey box on every option-card tap over
+     cream and gold. --primary #A45A2A at 12%, literal because the property takes
+     no alpha channel of its own. */
+  -webkit-tap-highlight-color:rgba(164,90,42,.12)}
 body{
   margin:0;background:var(--paper);color:var(--darkgray);
   font:400 16px/1.5 var(--font-neutral);
@@ -121,7 +129,9 @@ h1,h2{font-family:var(--font-primary);font-weight:700;color:var(--darkgray);marg
       text-wrap:balance}
 h1{font-size:28px;line-height:34px}
 h2{font-size:28px;line-height:34px}
-h1:focus{outline:none}
+/* all three are tabindex="-1" programmatic focus targets, so no keyboard user
+   loses a ring; #h-fin and #donetitle used to flash one while h1 did not */
+h1:focus,#h-fin:focus,#donetitle:focus{outline:none}
 h1.display{font-size:44px;line-height:50px;margin:0 0 var(--s3)}
 h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 @media (min-width:768px){
@@ -388,7 +398,8 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
   border-bottom:1px solid var(--primary);
   transform:scaleX(0);transform-origin:left;
   transition:transform .25s var(--ease)}
-.tlink:hover::after,.tlink:focus-visible::after{transform:scaleX(1)}
+.tlink:focus-visible::after{transform:scaleX(1)}
+@media (hover:hover){.tlink:hover::after{transform:scaleX(1)}}
 
 /* ============ THE SEAL (spec S9.2) - 8-lobed mark ============ */
 .seal{position:relative;width:var(--sz,54px);height:var(--sz,54px);flex:0 0 auto;
@@ -765,8 +776,10 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
 
 /* ---------- the finale ---------- */
 .finale{padding-bottom:var(--s7)}
+/* an h3 (it is subordinate to h2#h-fin), styled to carry across everything the
+   h1,h2 rule gave it: the display face, the colour and the balance */
 .minor{font-family:var(--font-primary);font-weight:500;font-size:24px;line-height:30px;
-  letter-spacing:.72px;margin:var(--s7) 0 var(--s2)}
+  letter-spacing:.72px;margin:var(--s7) 0 var(--s2);color:var(--darkgray);text-wrap:balance}
 .finale .plate .sw{--s:.86}
 .fieldset{border:0;margin:0;padding:0;min-width:0}
 .pillrow{display:flex;align-items:center;background:var(--white);border:1px solid var(--sage);
