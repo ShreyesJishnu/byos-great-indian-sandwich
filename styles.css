@@ -369,7 +369,13 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .tlink{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);
   min-height:44px;padding:0 var(--s2);border:0;background:none;color:var(--darkgray);
   font-family:var(--font-neutral);font-weight:400;font-size:16px;line-height:1;
-  letter-spacing:1.6px;text-transform:uppercase}
+  letter-spacing:1.6px;text-transform:uppercase;
+  /* .tlink never reset this, so the <a> instance carried the UA's default
+     underline in --darkgray while the <button> instance (reset, in the
+     confirmation) had none: two renderings of one component. Worse, it made the
+     brand's grow-on-hover underline draw a SECOND, terracotta line under a link
+     that already looked underlined, which is the whole affordance lost. */
+  text-decoration:none}
 /* The growing underline is brand-mandated (DESIGN.md 650, 757: one of the three
    things hover may do), so the BEHAVIOUR stays and only the implementation
    changes. It used to transition `width` and `left` — both layout properties,
