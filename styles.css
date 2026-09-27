@@ -910,3 +910,28 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
   .rail .opt .foot{min-height:68px}
   .hint{margin-top:var(--s2)}
 }
+
+/* ============ WebGL stack ============
+   The canvas takes the whole worktop rather than living inside .sw's 220x210
+   box: .sw is scaled by --s from a 50% 100% origin, and a canvas inside that
+   would be resampled rather than rendered at size. The CSS stack stays in the
+   DOM underneath - it is what the 52px .sw.sm thumbnails still draw, and what
+   the page falls back to if the context is lost. */
+.glstage{position:absolute;inset:0;z-index:2}
+.glstage canvas{display:block;width:100%;height:100%}
+.counter.gl > .sw,.plate.gl > .sw{display:none}
+
+/* ---------- the cut ---------- */
+.slicer{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  gap:8px;margin-top:var(--s4)}
+.slicel{font-family:var(--font-neutral);font-size:12px;letter-spacing:1.8px;
+  text-transform:uppercase;color:var(--gray-500)}
+.cut{border:1px solid var(--sage);background:var(--white);color:var(--darkgray);
+  border-radius:var(--r-pill);padding:7px 14px;
+  font-family:var(--font-neutral);font-size:13px;line-height:18px;
+  cursor:pointer;transition:background .15s var(--ease),color .15s var(--ease),
+    border-color .15s var(--ease),scale 120ms var(--ease)}
+.cut:active{scale:.97}                        /* the Press Contract */
+.cut[aria-pressed=true]{background:var(--primary);color:var(--primary-ink);
+  border-color:var(--primary)}
+@media (hover:hover){.cut:not([aria-pressed=true]):hover{border-color:var(--primary)}}

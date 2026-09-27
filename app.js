@@ -130,7 +130,13 @@ const stackHTML=(cls='')=>`<div class="sw ${cls}" aria-hidden="true"><div class=
           that passes it: the hero, presets and reveal all show finished
           sandwiches, and the lid arriving in the reveal is the payoff.
 */
+/* Every .sw that the WebGL renderer took over, mapped to its viewer. The CSS
+   stack stays in the DOM behind it and still drives the 52px thumbnails, so
+   both renderers read the same pick through the same function. */
+const VIEW=new Map();
 function syncStack(root,p,anim,open){
+  const v=VIEW.get(root);
+  if(v){ v.sync(p,anim,open); return; }
   let landed=false;
   root.querySelectorAll('.ly').forEach(el=>{
     const {slot,id,part}=el.dataset, v=p[slot];
@@ -299,6 +305,14 @@ function story(){
     <h2 id="h-fin" tabindex="-1">Your Sandwich</h2>
     <div class="code" id="fincode"></div>
     <div class="tags" id="fintags"></div>
+    <!-- 3D only: the CSS stack has no geometry to cut, so this stays hidden
+         unless the WebGL renderer actually mounted. -->
+    <div class="slicer" id="slicer" role="group" aria-label="How to cut it" hidden>
+      <span class="slicel">Cut it</span>
+      <button type="button" class="cut" data-act="cut" data-cut="none" aria-pressed="true">Whole</button>
+      <button type="button" class="cut" data-act="cut" data-cut="straight" aria-pressed="false">Straight</button>
+      <button type="button" class="cut" data-act="cut" data-cut="diagonal" aria-pressed="false">Diagonal</button>
+    </div>
     <form id="regwrap" novalidate>
       <div class="field">
         <label for="sname">Name your sandwich</label>
@@ -482,6 +496,12 @@ document.addEventListener('click',e=>{
     // so answering the click too would run submit() twice on an invalid form
     case 'submit':  return t.form?undefined:submit();
     case 'share':   return share();
+    case 'cut': {
+      for(const b of document.querySelectorAll('[data-act="cut"]'))
+        b.setAttribute('aria-pressed', String(b===t));
+      VIEW.get(plateSW)?.setSlice(t.dataset.cut);
+      return;
+    }
     case 'restart': location.hash=''; return location.reload();
     case 'reset':
       if(!confirm('Reset prototype data? This deletes your sandwich entry and the details you gave us \u2014 your name, mobile number, email and city \u2014 from this browser. This cannot be undone.')) return;
@@ -530,6 +550,8 @@ function finaleCopy(){
 function plate(){
   syncStack(plateSW,pick,false,false);
   if(reduced()) return;
+  const v=VIEW.get(plateSW);
+  if(v) return v.plateDrop();
   let last=0;
   [...plateSW.querySelectorAll('.ly.on')].forEach((el,i)=>{
     el.style.animation='none'; el.offsetHeight;
@@ -710,6 +732,40 @@ story();
 counterSW=document.querySelector('.counter .sw');
 plateSW=document.querySelector('.plate .sw');
 STEPS.forEach(s=>{rails[s.key]=document.querySelector(`[data-rail="${s.key}"]`); watchRail(rails[s.key])});
+
+/* ---- WebGL stack ---------------------------------------------------------
+   Progressive, and deliberately so. The CSS stack renders first and keeps
+   rendering if any step here fails: no WebGL context, a blocked import, a
+   throw inside three, a lost context later. This campaign is entered by a QR
+   on a jar, so a large share of traffic is whatever in-app browser the
+   scanner ships - the same population that has no Web Share API at all. */
+async function mount3D(){
+  let V;
+  try{ V=await import('./assets/3d/viewer.js'); }catch{ return; }
+  if(!V.supports()) return;
+  for(const [host,sw] of [[document.querySelector('.counter'),counterSW],
+                          [document.querySelector('.finale .plate'),plateSW]]){
+    if(!host||!sw) continue;
+    const stage=document.createElement('div');
+    stage.className='glstage';
+    host.appendChild(stage);
+    try{
+      const v=await V.mount(stage,{base:'assets/3d/',
+        onImpact:()=>buzz(14),
+        onLost:()=>{ host.classList.remove('gl'); VIEW.delete(sw); stage.remove(); }});
+      VIEW.set(sw,v); host.classList.add('gl');
+    }catch{ stage.remove(); }
+  }
+  if(!VIEW.size) return;
+  const sl=$('slicer'); if(sl && VIEW.has(plateSW)) sl.hidden=false;
+  // the build may already have a pick by the time three finishes parsing
+  if(VIEW.has(counterSW)){
+    syncStack(counterSW,pick,false,true);
+    if(pick.bread) counterSW.classList.remove('empty');
+  }
+  if(VIEW.has(plateSW)) syncStack(plateSW,pick,false,false);
+}
+mount3D();
 setProg(0); watchSteps(); watchClosing(); watchFinale(); wireValidation();
 // paint the closing method once at boot too: watchClosing keeps it current, but
 // an observer only fires on a rendered frame, so without this the beat is an

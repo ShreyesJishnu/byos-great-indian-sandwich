@@ -25,6 +25,7 @@
 import {
   WebGLRenderer, Scene, PerspectiveCamera, Group, Box3, Sphere, Vector3, Color,
   DirectionalLight, AmbientLight, AgXToneMapping, SRGBColorSpace,
+  Plane, DoubleSide, FrontSide,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
@@ -72,6 +73,7 @@ export async function mount(host, opts = {}) {
   // warm every crust by a visible amount against the reference renders
   renderer.toneMapping = AgXToneMapping;
   renderer.toneMappingExposure = manifest.exposure ?? 1;
+  renderer.localClippingEnabled = true;   // the slice is a per-material clip
 
   const scene = new Scene();
   const camera = new PerspectiveCamera(manifest.camera.fov, 1, 0.01, 10);
@@ -99,6 +101,30 @@ export async function mount(host, opts = {}) {
   const cache = new Map();          // file -> Promise<Group>
   const live = new Map();           // "slot:id:part" -> Group in the scene
 
+  /* GLTFLoader caches one parsed scene per file and Object3D.clone() SHARES
+     materials with it, so setting a clipping plane on a live layer would
+     reach back into the cache and into every other clone. Each live layer
+     gets its own material instances instead. */
+  function ownMaterials(g) {
+    g.traverse(o => {
+      if (!o.isMesh) return;
+      o.material = Array.isArray(o.material)
+        ? o.material.map(m => m.clone()) : o.material.clone();
+    });
+  }
+
+  function applyClip(g, planes) {
+    g.traverse(o => {
+      if (!o.isMesh) return;
+      for (const m of (Array.isArray(o.material) ? o.material : [o.material])) {
+        m.clippingPlanes = planes;
+        // a clipped solid is open at the cut, so the inner wall has to draw
+        m.side = planes ? DoubleSide : FrontSide;
+        m.needsUpdate = true;
+      }
+    });
+  }
+
   function load(file) {
     if (!cache.has(file)) {
       cache.set(file, loader.loadAsync(`${base}${file}.glb`).then(g => g.scene));
@@ -112,12 +138,20 @@ export async function mount(host, opts = {}) {
      and a finished one are both framed correctly without a special case. */
   const box = new Box3(), size = new Vector3(), centre = new Vector3();
   const sphere = new Sphere();
-  let fitTarget = 1, fitNow = 1;
+  let mirror = null, sliceMode = 'none';
+  let fitTarget = 1, fitNow = 1, fitted = false;
 
   function refit() {
     if (!root.children.length) return;
     const food = [...live.entries()].filter(([k]) => !k.startsWith('board:')).map(([, g]) => g);
+    if (mirror) food.push(...mirror.children);     // a slice is wider than the stack
     if (!food.length) return;
+    /* World matrices are normally refreshed by the render loop, but the loop
+       is stopped whenever this stage is off screen - and sync() still runs
+       there. Without this the box below is measured against the PREVIOUS
+       position, so the correction is applied again on top of itself and the
+       stack walks out of frame a little further on every call. */
+    root.updateMatrixWorld(true);
     box.makeEmpty();
     for (const g of food) box.expandByObject(g);
     if (box.isEmpty()) return;
@@ -127,6 +161,7 @@ export async function mount(host, opts = {}) {
        double-count it and the stack would walk out of frame a little further
        on every re-sync; subtracting lands the centre on the origin exactly. */
     root.position.sub(centre);
+    root.updateMatrixWorld(true);        // so the next measurement sees this one
 
     /* Fit the bounding SPHERE, not the per-axis box. The camera looks in from
        an azimuth, so what the frame has to hold is the silhouette's diagonal,
@@ -140,6 +175,7 @@ export async function mount(host, opts = {}) {
     const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
     const half = Math.min(vFov, hFov) / 2;
     fitTarget = (sphere.radius / Math.sin(half)) * (manifest.camera.pad ?? 1.05);
+    if (!fitted) { fitNow = fitTarget; fitted = true; place(); }
   }
 
   function place() {
@@ -160,27 +196,55 @@ export async function mount(host, opts = {}) {
      simply stops existing instead of landing on top of its replacement. */
   const FALL = 0.5;                  // seconds
   const RISE = manifest.dropHeight ?? 0.06;
+  const SPREAD = 0.38;               // mayo only: how long the puddle takes
   const falling = new Set();
+  const lerp = (a, b, t) => a + (b - a) * t;
 
   function animate(dt) {
     for (const g of falling) {
-      g.userData.drop -= dt;
-      if (g.userData.drop <= 0) {
-        g.userData.drop = 0;
-        g.position.y = g.userData.restY;
-        falling.delete(g);
-        if (g.userData.buzz) { g.userData.buzz = false; opts.onImpact?.(); }
+      const u = g.userData;
+
+      if (u.drop > 0) {
+        u.drop -= dt;
+        const t = Math.min(Math.max(u.drop, 0) / FALL, 1); // 1 while queued, 0 landing
+        g.position.y = u.restY + RISE * t * t;
+        if (u.kind === 'mayo') {
+          /* A drip, not a slab: narrow and stretched on the way down, so it
+             reads as something leaving a bottle rather than a disc that
+             happens to be falling. */
+          const f = 1 - t;
+          const w = lerp(0.26, 0.62, f * f);
+          g.scale.set(w, lerp(1.75, 1.0, f), w);
+        }
+        if (u.drop <= 0) {
+          u.drop = 0;
+          g.position.y = u.restY;
+          if (u.buzz) { u.buzz = false; opts.onImpact?.(); }
+          if (u.kind === 'mayo') u.spread = SPREAD;    // now let it puddle
+          else { falling.delete(g); g.scale.set(1, 1, 1); }
+        }
+        continue;
+      }
+
+      if (u.spread > 0) {
+        u.spread -= dt;
+        const f = 1 - Math.max(u.spread, 0) / SPREAD;
+        // overshoot just past full width, then settle: mayo spreading, then
+        // stopping, is the whole point of the beat
+        const o = Math.sin(f * Math.PI) * 0.06;
+        const w = lerp(0.62, 1, f) + o;
+        g.scale.set(w, lerp(1.0, 1, f) - o * 0.5, w);
+        if (u.spread <= 0) { u.spread = 0; g.scale.set(1, 1, 1); falling.delete(g); }
       } else {
-        // ease-out: fast at the top of the fall, settling at the bottom
-        const t = g.userData.drop / FALL;
-        g.position.y = g.userData.restY + RISE * t * t;
+        falling.delete(g);
       }
     }
   }
 
-  function startDrop(g, delay = 0, buzz = false) {
-    g.userData.drop = FALL + delay;
-    g.userData.buzz = buzz;
+  function startDrop(g, delay = 0, buzz = false, kind = null) {
+    const u = g.userData;
+    u.drop = FALL + delay; u.buzz = buzz; u.kind = kind; u.spread = 0;
+    if (kind === 'mayo') g.scale.set(0.26, 1.75, 0.26);
     falling.add(g);
   }
 
@@ -191,7 +255,9 @@ export async function mount(host, opts = {}) {
     const seq = ++stackSeq;
     const want = [];
     want.push(['board', 'wood', null]);
-    want.push(['bread', pick.bread, 'bottom']);
+    // the builder mounts before anything is chosen, so every layer is optional;
+    // an empty pick is a bare board, which is exactly the CSS stack's .empty
+    if (pick.bread) want.push(['bread', pick.bread, 'bottom']);
     if (pick.mayo) want.push(['mayo', pick.mayo, null]);
     /* Lettuce is a bed, not a topping: all three preset stacks in the .blend
        lay it straight on the mayo and put the filling on top of it, and every
@@ -202,7 +268,7 @@ export async function mount(host, opts = {}) {
     if (pick.filling) want.push(['filling', pick.filling, null]);
     for (const id of veg) if (id !== 'lettuce') want.push(['veg', id, null]);
     for (const id of pick.crunch || []) want.push(['crunch', id, null]);
-    if (!open) want.push(['bread', pick.bread, 'top']);
+    if (!open && pick.bread) want.push(['bread', pick.bread, 'top']);
 
     const keys = want.map(([s, i, p]) => `${s}:${i}:${p || ''}`);
     const keyset = new Set(keys);
@@ -224,19 +290,60 @@ export async function mount(host, opts = {}) {
         const src = await load(file);
         if (seq !== stackSeq) return;      // a newer sync overtook this one
         g = src.clone(true);
+        ownMaterials(g);
         live.set(key, g);
         root.add(g);
       }
       g.userData.restY = y;
+      g.userData.slot = slot;
       if (fresh) {
         g.position.y = y;
         const wanted = anim === 'all' || anim === `${slot}:${id}`;
-        if (wanted && !reduced()) startDrop(g, 0, true);
+        if (wanted && !reduced()) startDrop(g, 0, true, slot);
       } else if (!falling.has(g)) {
         g.position.y = y;
       }
       y += rise;
     }
+    if (sliceMode !== 'none') setSlice(sliceMode); else refit();
+  }
+
+  /* ---- the slice ---------------------------------------------------------
+     Two halves of one stack, each drawn from the same geometry with the
+     opposite clipping plane and pushed apart along the cut's normal. The
+     mirror shares every buffer with the original - only the materials are
+     cloned - so a slice costs draw calls, not memory. */
+  const GAP = 0.022;
+
+  function setSlice(mode = 'none') {
+    sliceMode = mode;
+    if (mirror) { root.remove(mirror); mirror = null; }
+    for (const [k, g] of live) {
+      applyClip(g, null);
+      g.position.x = 0; g.position.z = 0;
+      void k;
+    }
+    if (mode === 'none') { refit(); return; }
+
+    // straight cut: two rectangles. diagonal: two triangles, corner to corner.
+    const n = mode === 'diagonal'
+      ? new Vector3(1, 0, 1).normalize()
+      : new Vector3(1, 0, 0);
+    const near = new Plane(n.clone(), 0);
+    const far  = new Plane(n.clone().negate(), 0);
+
+    mirror = new Group();
+    for (const [k, g] of live) {
+      if (k.startsWith('board:')) continue;      // the board is not cut
+      applyClip(g, [near]);
+      g.position.addScaledVector(n, GAP);
+      const m = g.clone(true);
+      ownMaterials(m);
+      applyClip(m, [far]);
+      m.position.copy(g.position).addScaledVector(n, -2 * GAP);
+      mirror.add(m);
+    }
+    root.add(mirror);
     refit();
   }
 
@@ -247,7 +354,7 @@ export async function mount(host, opts = {}) {
     const order = [...live.values()];
     order.forEach((g, i) => {
       const isLid = g === order[order.length - 1];
-      startDrop(g, i * 0.07 + (isLid ? 0.3 : 0), isLid);
+      startDrop(g, i * 0.07 + (isLid ? 0.3 : 0), isLid, g.userData.slot);
     });
   }
 
@@ -299,7 +406,7 @@ export async function mount(host, opts = {}) {
   });
 
   return {
-    sync, plateDrop,
+    sync, plateDrop, setSlice,
     // read-only window into the fit maths, for the dev harness
     debug: () => ({
       size: size.toArray().map(v => +v.toFixed(4)),
