@@ -1,0 +1,143 @@
+{
+  "_": "Generated from blender/sandwich_assets.blend. Camera, lights and exposure mirror the .blend's own LOOKDEV rig so the browser reads like the render. Rise is how far the NEXT layer sits above this one, in metres, taken from the three PREVIEW_Stacks in the .blend; layers no preset uses are scaled from their bounding box by their family's ratio.",
+  "camera": {
+    "fov": 28.84,
+    "angle": [
+      -0.611,
+      0.349
+    ],
+    "pad": 1.08
+  },
+  "exposure": 0.66,
+  "toneMapping": "agx",
+  "ambient": {
+    "color": [
+      0.93,
+      0.89,
+      0.82
+    ],
+    "intensity": 0.55
+  },
+  "lights": [
+    {
+      "name": "key",
+      "color": [
+        1.0,
+        0.95,
+        0.88
+      ],
+      "intensity": 2.6,
+      "position": [
+        -0.9,
+        1.3,
+        1.0
+      ]
+    },
+    {
+      "name": "fill",
+      "color": [
+        0.9,
+        0.95,
+        1.0
+      ],
+      "intensity": 0.75,
+      "position": [
+        1.2,
+        0.7,
+        0.6
+      ]
+    },
+    {
+      "name": "rim",
+      "color": [
+        1.0,
+        0.92,
+        0.8
+      ],
+      "intensity": 1.7,
+      "position": [
+        0.3,
+        0.9,
+        -1.4
+      ]
+    }
+  ],
+  "dropHeight": 0.055,
+  "layers": {
+    "board_wood": {
+      "rise": 0.015
+    },
+    "bread_white_bottom": {
+      "rise": 0.0118
+    },
+    "bread_multi_bottom": {
+      "rise": 0.0129
+    },
+    "bread_sour_bottom": {
+      "rise": 0.0148
+    },
+    "bread_pav_bottom": {
+      "rise": 0.0148
+    },
+    "mayo_orig": {
+      "rise": 0.0015
+    },
+    "mayo_burger": {
+      "rise": 0.002
+    },
+    "mayo_garlic": {
+      "rise": 0.002
+    },
+    "mayo_tandoori": {
+      "rise": 0.002
+    },
+    "filling_aloo": {
+      "rise": 0.01
+    },
+    "filling_paneer": {
+      "rise": 0.007
+    },
+    "filling_chicken": {
+      "rise": 0.009
+    },
+    "filling_veggies": {
+      "rise": 0.011
+    },
+    "veg_lettuce": {
+      "rise": 0.0055
+    },
+    "veg_tomato": {
+      "rise": 0.004
+    },
+    "veg_cucumber": {
+      "rise": 0.003
+    },
+    "veg_onion": {
+      "rise": 0.004
+    },
+    "crunch_chips": {
+      "rise": 0.008
+    },
+    "crunch_nachos": {
+      "rise": 0.009
+    },
+    "crunch_namkeen": {
+      "rise": 0.004
+    },
+    "crunch_friedonion": {
+      "rise": 0.006
+    },
+    "bread_white_top": {
+      "rise": 0.013
+    },
+    "bread_multi_top": {
+      "rise": 0.014
+    },
+    "bread_sour_top": {
+      "rise": 0.016
+    },
+    "bread_pav_top": {
+      "rise": 0.034
+    }
+  }
+}

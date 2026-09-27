@@ -7,3 +7,6 @@ byos-qr-live.png
 *.presnap.*
 .DS_Store
 .claude/
+blender/
+node_modules/
+_viewer-test.html

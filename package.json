@@ -1,0 +1,7 @@
+{
+  "name": "byos-great-indian-sandwich",
+  "private": true,
+  "description": "Build-time only. The published site is static: nothing here is served.",
+  "scripts": { "build:viewer": "./tools/build-viewer.sh" },
+  "devDependencies": { "three": "^0.186.1" }
+}
