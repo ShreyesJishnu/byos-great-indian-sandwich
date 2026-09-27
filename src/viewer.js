@@ -138,6 +138,8 @@ export async function mount(host, opts = {}) {
      and a finished one are both framed correctly without a special case. */
   const box = new Box3(), size = new Vector3(), centre = new Vector3();
   const sphere = new Sphere();
+  const fwd = new Vector3(), right = new Vector3(), up = new Vector3();
+  const corner = new Vector3(), UP = new Vector3(0, 1, 0);
   let mirror = null, sliceMode = 'none';
   let fitTarget = 1, fitNow = 1, fitted = false;
 
@@ -163,18 +165,38 @@ export async function mount(host, opts = {}) {
     root.position.sub(centre);
     root.updateMatrixWorld(true);        // so the next measurement sees this one
 
-    /* Fit the bounding SPHERE, not the per-axis box. The camera looks in from
-       an azimuth, so what the frame has to hold is the silhouette's diagonal,
-       not its width: a 0.106 x 0.092 board presents 0.140 across at -35deg,
-       which is what cropped the pav bun when this fitted x and z separately.
-       A sphere has no orientation, so one number covers every angle.
-       camera.fov is the VERTICAL angle; a portrait canvas is tighter
-       horizontally, so fit against whichever half-angle is smaller. */
-    box.getBoundingSphere(sphere);
+    /* Fit the eight box corners as the camera actually sees them.
+       A bounding sphere was the previous answer and it is honest but loose:
+       it circumscribes the box, so a sandwich - wide, shallow, and viewed
+       from an azimuth - was framed as though it were a ball of its diagonal
+       and sat too small on a phone. Projecting the corners into the camera's
+       own basis costs eight dot products and frames the actual silhouette.
+
+       The camera sits at distance D along -forward, so a corner's depth is
+       D + c.forward and the half-extent it is allowed is (D + c.forward) *
+       tan(half). Solving for D per corner and taking the max is the exact
+       distance at which nothing is cropped. */
     const vFov = camera.fov * Math.PI / 180;
     const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
-    const half = Math.min(vFov, hFov) / 2;
-    fitTarget = (sphere.radius / Math.sin(half)) * (manifest.camera.pad ?? 1.05);
+    const tv = Math.tan(vFov / 2), th = Math.tan(hFov / 2);
+
+    const a = manifest.camera.angle;
+    fwd.set(Math.sin(a[0]) * Math.cos(a[1]), Math.sin(a[1]),
+            Math.cos(a[0]) * Math.cos(a[1])).normalize().negate();
+    right.crossVectors(fwd, UP).normalize();
+    up.crossVectors(right, fwd).normalize();
+
+    let need = 0;
+    for (let i = 0; i < 8; i++) {
+      corner.set(i & 1 ? box.max.x : box.min.x,
+                 i & 2 ? box.max.y : box.min.y,
+                 i & 4 ? box.max.z : box.min.z).sub(centre);
+      const cf = corner.dot(fwd);
+      need = Math.max(need,
+        Math.abs(corner.dot(right)) / th - cf,
+        Math.abs(corner.dot(up))    / tv - cf);
+    }
+    fitTarget = need * (manifest.camera.pad ?? 1.02);
     if (!fitted) { fitNow = fitTarget; fitted = true; place(); }
   }
 
@@ -298,7 +320,15 @@ export async function mount(host, opts = {}) {
       g.userData.slot = slot;
       if (fresh) {
         g.position.y = y;
-        const wanted = anim === 'all' || anim === `${slot}:${id}`;
+        /* Only something landing on TOP of the stack may fall onto it. Going
+           back and changing the bread replaces a layer underneath everything
+           already built, and dropping that from the usual height sent a slice
+           straight up through the mayo and the filling on its way to the
+           bottom. A base layer swaps in where it belongs instead.
+           'all' is a full rebuild, where every layer is new and they fall
+           together, so nothing has anything to pass through. */
+        const isTop = n === want.length - 1;
+        const wanted = anim === 'all' || (anim === `${slot}:${id}` && isTop);
         if (wanted && !reduced()) startDrop(g, 0, true, slot);
       } else if (!falling.has(g)) {
         g.position.y = y;
