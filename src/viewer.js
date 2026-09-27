@@ -25,10 +25,11 @@
 import {
   WebGLRenderer, Scene, PerspectiveCamera, Group, Box3, Sphere, Vector3, Color,
   DirectionalLight, AmbientLight, AgXToneMapping, SRGBColorSpace,
-  Plane, DoubleSide, FrontSide,
+  Plane, DoubleSide, FrontSide, Mesh,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 /* A lost context, a blacklisted driver and a software rasteriser all present
    as "WebGL works" to a naive check, so probe for a real context and throw the
@@ -125,9 +126,57 @@ export async function mount(host, opts = {}) {
     });
   }
 
+  /* The scattered layers ship one mesh per piece, which is how they were
+     modelled: namkeen is 30 objects, fried onion 15. That is 45 draw calls
+     for two toppings. Every piece in a layer shares a material, so they can
+     be baked into one buffer per material at load - once, on the cached
+     source, so every clone of that layer is already flat. */
+  /* Group by what the material DOES, not by object identity. The bake gave
+     every piece its own material copy, and the exporter then gave each one
+     its own texture object - 30 of them in namkeen, all pointing at the same
+     single baked image. Identity comparison therefore finds nothing to share.
+     The image source plus the PBR values is what actually decides whether two
+     draws could have been one. */
+  function matKey(m) {
+    return [
+      m.map?.source?.uuid ?? 'none',
+      m.color?.getHexString() ?? '',
+      m.roughness, m.metalness, m.side, m.transparent ? 1 : 0,
+      m.normalMap?.source?.uuid ?? '',
+    ].join('|');
+  }
+
+  function flatten(src) {
+    const groups = new Map();
+    src.updateMatrixWorld(true);
+    let meshes = 0;
+    src.traverse(o => {
+      if (!o.isMesh || Array.isArray(o.material)) return;
+      meshes++;
+      const k = matKey(o.material);
+      if (!groups.has(k)) groups.set(k, { mat: o.material, geos: [] });
+      const g = o.geometry.clone();
+      g.applyMatrix4(o.matrixWorld);
+      groups.get(k).geos.push(g);
+    });
+    if (!meshes || groups.size === meshes) return src;      // nothing to win
+    const out = new Group();
+    try {
+      for (const { mat, geos } of groups.values()) {
+        const merged = geos.length > 1 ? mergeGeometries(geos, false) : geos[0];
+        if (!merged) throw new Error('merge returned null');
+        out.add(new Mesh(merged, mat));
+      }
+    } catch {
+      return src;                 // mismatched attributes: keep the original
+    }
+    return out;
+  }
+
   function load(file) {
     if (!cache.has(file)) {
-      cache.set(file, loader.loadAsync(`${base}${file}.glb`).then(g => g.scene));
+      cache.set(file, loader.loadAsync(`${base}${file}.glb`)
+        .then(g => flatten(g.scene)));
     }
     return cache.get(file);
   }
@@ -267,7 +316,7 @@ export async function mount(host, opts = {}) {
     const u = g.userData;
     u.drop = FALL + delay; u.buzz = buzz; u.kind = kind; u.spread = 0;
     if (kind === 'mayo') g.scale.set(0.26, 1.75, 0.26);
-    falling.add(g);
+    falling.add(g); invalidate();
   }
 
   /* ---- the one call app.js makes ---------------------------------------- */
@@ -336,6 +385,7 @@ export async function mount(host, opts = {}) {
       y += rise;
     }
     if (sliceMode !== 'none') setSlice(sliceMode); else refit();
+    invalidate();
   }
 
   /* ---- the slice ---------------------------------------------------------
@@ -353,7 +403,7 @@ export async function mount(host, opts = {}) {
       g.position.x = 0; g.position.z = 0;
       void k;
     }
-    if (mode === 'none') { refit(); return; }
+    if (mode === 'none') { refit(); invalidate(); return; }
 
     // straight cut: two rectangles. diagonal: two triangles, corner to corner.
     const n = mode === 'diagonal'
@@ -375,6 +425,7 @@ export async function mount(host, opts = {}) {
     }
     root.add(mirror);
     refit();
+    invalidate();
   }
 
   /* The finale replays the whole build, bottom to top, with the lid held back
@@ -391,22 +442,40 @@ export async function mount(host, opts = {}) {
   /* ---- loop --------------------------------------------------------------
      rAF only while the host is on screen and the tab is visible. A sticky
      worktop that scrolls away must not keep a GPU busy on a phone. */
-  let running = false, last = 0, raf = 0;
+  let onScreen = false, last = 0, raf = 0, dirty = true;
+
+  /* A sandwich that has finished falling is a still image, and redrawing a
+     still image 120 times a second is the single most expensive thing this
+     renderer was doing: 103,464 triangles a frame with nothing moving. The
+     loop now runs only while something is actually in motion, and anything
+     that changes the picture says so by calling invalidate(). */
+  function invalidate() {
+    dirty = true;
+    if (onScreen && !raf) { last = 0; raf = requestAnimationFrame(frame); }
+  }
+
   function frame(t) {
-    raf = requestAnimationFrame(frame);
     const dt = last ? Math.min((t - last) / 1000, 0.05) : 0;
     last = t;
     animate(dt);
-    fitNow += (fitTarget - fitNow) * Math.min(dt * 6, 1);
-    place();
-    renderer.render(scene, camera);
+    const zooming = Math.abs(fitTarget - fitNow) > 1e-4;
+    if (zooming) fitNow += (fitTarget - fitNow) * Math.min(dt * 6, 1);
+    const moving = falling.size > 0 || zooming;
+    if (dirty || moving) {
+      place();
+      renderer.render(scene, camera);
+      dirty = false;
+    }
+    raf = moving ? requestAnimationFrame(frame) : 0;
   }
+
   function start() {
-    if (running) return;
-    running = true; last = 0; raf = requestAnimationFrame(frame);
+    if (onScreen) return;
+    onScreen = true; invalidate();
   }
   function stop() {
-    running = false; cancelAnimationFrame(raf);
+    onScreen = false;
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
   }
 
   const io = new IntersectionObserver(
@@ -426,6 +495,7 @@ export async function mount(host, opts = {}) {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    refit(); invalidate();
   });
   ro.observe(host);
 
@@ -446,6 +516,17 @@ export async function mount(host, opts = {}) {
       fitTarget: +fitTarget.toFixed(4), fitNow: +fitNow.toFixed(4),
       aspect: +camera.aspect.toFixed(3), fov: camera.fov,
       layers: [...live.keys()],
+      render: { calls: renderer.info.render.calls,
+                tris: renderer.info.render.triangles,
+                geometries: renderer.info.memory.geometries,
+                textures: renderer.info.memory.textures,
+                programs: renderer.info.programs?.length ?? 0,
+                frame: renderer.info.render.frame },
+      falling: falling.size,
+      meshesPerLayer: [...live.entries()].map(([k, g]) => {
+        let n = 0; g.traverse(o => { if (o.isMesh) n++; }); return [k, n];
+      }),
+      pixelRatio: renderer.getPixelRatio(),
     }),
     dispose() {
       stop(); io.disconnect(); ro.disconnect();
