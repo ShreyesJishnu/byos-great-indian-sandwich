@@ -204,7 +204,7 @@ Object.assign(ICON,{
 const optCard=(s,o,j)=>`
   <button class="opt" data-key="${s.key}" data-id="${o.id}" data-j="${j}" tabindex="${j?-1:0}"
     ${s.multi?'aria-pressed="false"':'role="radio" aria-checked="false"'}
-    ${o.img?`aria-label="${o.n} &mdash; ${o.alt}"`:''}>
+    ${o.img?`aria-label="${o.n}. ${o.alt}"`:''}>
     <span class="tick" aria-hidden="true">${ICON.check}</span>
     <span class="swatch" style="--swatch:${o.img?'var(--white)':o.c}">${
       o.img?`<img src="${o.img}" alt="" loading="lazy" width="200" height="200">`:''}</span>
@@ -257,7 +257,7 @@ function story(){
       <p class="august">Make it yours</p>
       <h1 class="display on-hero" id="h1" tabindex="-1">The Great Indian Sandwich</h1>
     </div>
-    <p class="lede mt5">Five picks, one sandwich, and a name on it. Scroll to cook &mdash; the
+    <p class="lede mt5">Five picks, one sandwich, and a name on it. Scroll to cook. The
       counter is set. A Dr.&nbsp;Oetker jury reads every entry, and the builds they find most
       interesting get made for real.</p>
     <div class="cue" aria-hidden="true"><span class="lbl">Scroll to start</span><span class="ln"></span>${ICON.arcD}</div>
@@ -297,7 +297,7 @@ function story(){
        sticky container that has to END here, so the worktop can clear the top of
        the screen before the plate enters from the bottom. Inside .build it only
        made the counter stick for longer and both sandwiches showed at once. -->
-  <div class="closing"><p>That&rsquo;s everything. Close it up &mdash; keep scrolling.</p>
+  <div class="closing"><p>That&rsquo;s everything. Close it up, keep scrolling.</p>
     <ol class="method" id="method" aria-label="Your sandwich, as a method"></ol></div>
 
   <section class="finale" id="finale" aria-labelledby="h-fin">
@@ -573,7 +573,7 @@ const METHOD={
   bread:v=>`Lay out the ${v} slices.`,
   mayo:v=>`Spread the ${v} mayo, edge to edge.`,
   filling:v=>`Pile on the ${v}.`,
-  veg:v=>v?`Layer the ${v}.`:'Skip the salad &mdash; straight to the crunch.',
+  veg:v=>v?`Layer the ${v}.`:'Skip the salad, straight to the crunch.',
   crunch:v=>v?`Finish with the ${v}.`:'No crunch. Soft and honest.'
 };
 const andList=names=>names.length<2?(names[0]||'')
@@ -629,7 +629,7 @@ function setConsent(ok){
   p.className=ok?'help':'err';
   ok?p.removeAttribute('role'):p.setAttribute('role','alert');
   p.innerHTML=ok?HELP.rconsent
-    :ICON.alert+'<span>Tick the box to enter — we need your consent to hold your details.</span>';
+    :ICON.alert+'<span>Tick the box to enter. We need your consent to hold your details.</span>';
 }
 function wireValidation(){
   HELP.rconsent=$('rconsent-err').innerHTML;

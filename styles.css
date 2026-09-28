@@ -381,7 +381,7 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .cta:disabled .pill{background:var(--hairline);color:var(--gray-500)}
 .cta:disabled .ring{border-color:var(--gray-500)}
 .cta .spin{display:inline-block;vertical-align:-3px;margin-right:6px;
-  width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+  width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:var(--white);
   border-radius:var(--r-pill);animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ctas{display:flex;flex-direction:column;align-items:center;gap:0}
@@ -426,9 +426,9 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .seal.lg b{font-size:19px;line-height:23px;letter-spacing:.5px;text-transform:uppercase}
 
 /* mechanic: seal-numbered steps (spec S10 move 8) */
-.mech{position:relative;--arcfill:var(--campaign);background:var(--campaign);color:#fff;
+.mech{position:relative;--arcfill:var(--campaign);background:var(--campaign);color:var(--white);
   padding:var(--s6) var(--s4) var(--s7);margin-top:var(--s7)}
-.mech h2{color:#fff}
+.mech h2{color:var(--white)}
 .mech ol{list-style:none;margin:var(--s5) 0 0;padding:0;display:flex;flex-direction:column;gap:var(--s4)}
 .mech li{display:flex;align-items:center;gap:var(--s4)}
 /* inside a red block the seal is line art only - the "numbered recipe step"
@@ -436,7 +436,7 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .mech .seal{--disc:transparent}
 /* white on #ED1C24 is 4.38:1 -> legal only at >=19px/700. This is 19px/700. */
 .mech li p{margin:0;font-family:var(--font-primary);font-weight:700;font-size:19px;
-  line-height:26px;color:#fff;text-wrap:balance}
+  line-height:26px;color:var(--white);text-wrap:balance}
 
 /* ============ CARD GRAMMAR (spec S3.6/S3.7) ============
    Image or packshot on top, warm footer below, arc on the footer's top edge,
@@ -469,7 +469,7 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .opt .name{display:block;font-family:var(--font-primary);font-weight:500;font-size:20px;
   line-height:26px;letter-spacing:.6px;color:var(--darkgray)}
 .opt .tick{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:var(--r-pill);
-  background:var(--campaign);color:#fff;display:none;place-items:center;z-index:3}
+  background:var(--campaign);color:var(--white);display:none;place-items:center;z-index:3}
 .opt[aria-pressed=true] .tick{display:grid}
 .opt[aria-pressed=true]{outline:2px solid var(--primary);outline-offset:-2px}
 .opt:active{scale:.985}
@@ -782,16 +782,22 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
    This closes the making; the finale opens the result.
    Laid out with space-evenly rather than centred, so the lines distribute down
    the screen they were given instead of huddling in the middle of it. */
+/* The beat still fills a screen, because the counter has to clear the viewport
+   before the plate arrives. What it must NOT do is distribute its children to
+   the edges of that screen: space-evenly on a 100lvh box pushed the heading
+   and the five steps into separate islands, measured at 75.5px of dead air
+   between 40px rows on a 390x844 phone. The group is centred and spaced from
+   the scale instead, so the rhythm is the same on every device height. */
 .closing{min-height:calc(100lvh - var(--barH) + var(--s7));
-  display:flex;flex-direction:column;justify-content:space-evenly;
+  display:flex;flex-direction:column;justify-content:center;gap:var(--s7);
   padding:var(--s7) var(--s4);text-align:center}
 .closing p{margin:0;font-family:var(--font-primary);font-weight:500;font-size:24px;
   line-height:30px;letter-spacing:.72px;color:var(--darkgray)}
 /* the method. Same seal-numbered grammar as "How It Works", which is the brand's
    own device for an ordered recipe — there in white line art on red, here as the
    filled mark on paper. */
-.method{list-style:none;margin:0;padding:0;flex:1 1 auto;width:100%;max-width:340px;
-  align-self:center;display:flex;flex-direction:column;justify-content:space-evenly;
+.method{list-style:none;margin:0;padding:0;width:100%;max-width:340px;
+  align-self:center;display:flex;flex-direction:column;gap:var(--s5);
   text-align:left}
 .method li{display:flex;align-items:center;gap:var(--s4)}
 .method .seal{--sz:40px}
