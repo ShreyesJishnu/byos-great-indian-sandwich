@@ -134,6 +134,11 @@ const stackHTML=(cls='')=>`<div class="sw ${cls}" aria-hidden="true"><div class=
    both renderers read the same pick through the same function. */
 const VIEW=new Map();
 function syncStack(root,p,anim,open){
+  // A missing stack is not worth throwing over. Deleting the preset badge left
+  // a caller passing null here, and the throw happened inside story(), so it
+  // took the whole boot with it: the page rendered its sections and then
+  // nothing else ran, including mount3D.
+  if(!root) return;
   const v=VIEW.get(root);
   if(v) return v.sync(p,anim,open);   // a promise: the caller may need the stack built
   let landed=false;
@@ -344,7 +349,6 @@ function story(){
   </section>
   <small class="fine">Prototype &middot; data stays in this browser</small>`;
 
-  document.querySelectorAll('.preset').forEach((el,i)=>syncStack(el.querySelector('.sw'),PRESETS[i].p,false));
   reveal_on_scroll();
 }
 
