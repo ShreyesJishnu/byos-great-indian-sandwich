@@ -258,7 +258,7 @@ function story(){
       <h1 class="display on-hero" id="h1" tabindex="-1">The Great Indian Sandwich</h1>
     </div>
     <p class="lede mt5">Five picks, one sandwich, and a name on it. Scroll to cook. The
-      counter is set. A Dr.&nbsp;Oetker jury reads every entry, and the builds they find most
+      counter is set. A <span translate="no">Dr.&nbsp;Oetker</span> jury reads every entry, and the builds they find most
       interesting get made for real.</p>
     <div class="cue" aria-hidden="true"><span class="lbl">Scroll to start</span><span class="ln"></span>${ICON.arcD}</div>
   </section>
@@ -337,7 +337,7 @@ function story(){
           'name="city" maxlength="60" autocomplete="address-level2" enterkeyhint="done" aria-describedby="rcity-help"')}
         <div class="consent" id="consentbox" data-invalid="false">
           <input type="checkbox" id="rconsent" name="consent" aria-describedby="rconsent-err">
-          <label for="rconsent">I agree that Dr.&nbsp;Oetker India may store and use these details
+          <label for="rconsent">I agree that <span translate="no">Dr.&nbsp;Oetker India</span> may store and use these details
             to run this contest and contact me about my entry.</label>
         </div>
         <p class="help" id="rconsent-err" style="padding-left:0">You can withdraw consent at any

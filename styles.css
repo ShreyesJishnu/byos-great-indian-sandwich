@@ -941,3 +941,17 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
 .cut[aria-pressed=true]{background:var(--primary);color:var(--primary-ink);
   border-color:var(--primary)}
 @media (hover:hover){.cut:not([aria-pressed=true]):hover{border-color:var(--primary)}}
+
+/* Skip link: the first focusable thing in the document, invisible until it has
+   focus. The builder is a long scroll narrative, so a keyboard user reaching
+   the page should be able to jump the header rather than tab through it. */
+.skip{position:absolute;left:var(--s4);top:var(--s4);z-index:100;
+  transform:translateY(-200%);
+  background:var(--primary);color:var(--primary-ink);
+  padding:var(--s3) var(--s4);border-radius:var(--r-pill);
+  font-family:var(--font-neutral);font-size:14px;text-decoration:none;
+  transition:transform .18s var(--ease)}
+/* :focus, not :focus-visible. A skip link is reached only by keyboard, and
+   :focus-visible does not match a programmatic focus() call, which is exactly
+   how an assistive tool may land on it. */
+.skip:focus{transform:translateY(0);outline:2px solid var(--darkgray);outline-offset:2px}
