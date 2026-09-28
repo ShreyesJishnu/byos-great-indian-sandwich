@@ -134,19 +134,19 @@
     },
     "crunch_chips": {
       "rise": 0.008,
-      "h": 0.01889
+      "h": 0.01414
     },
     "crunch_nachos": {
       "rise": 0.009,
-      "h": 0.01844
+      "h": 0.00823
     },
     "crunch_namkeen": {
       "rise": 0.004,
-      "h": 0.01026
+      "h": 0.0077
     },
     "crunch_friedonion": {
       "rise": 0.006,
-      "h": 0.01189
+      "h": 0.00851
     },
     "bread_white_top": {
       "rise": 0.013,
