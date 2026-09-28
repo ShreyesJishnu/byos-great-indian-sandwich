@@ -746,7 +746,20 @@ async function mount3D(){
     try{
       const v=await V.mount(stage,{base:'assets/3d/',
         onImpact:()=>buzz(14),
-        onLost:()=>{ host.classList.remove('gl'); VIEW.delete(sw); stage.remove(); }});
+        /* iOS Safari drops WebGL contexts under memory pressure, so this is a
+           path real phones take, not a theoretical one. Handing the page back
+           to the CSS stack is not enough on its own: that stack has not been
+           synced since the moment WebGL took over, so it would surface
+           whatever the build looked like back then. Delete the viewer first,
+           so syncStack routes to the DOM again, THEN sync it. */
+        onLost:()=>{
+          VIEW.delete(sw);
+          host.classList.remove('gl');
+          stage.remove();
+          const isCounter = sw===counterSW;
+          syncStack(sw,pick,false,isCounter);
+          if(isCounter && pick.bread) sw.classList.remove('empty');
+        }});
       VIEW.set(sw,v); host.classList.add('gl');
     }catch{ stage.remove(); }
   }
