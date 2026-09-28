@@ -109,16 +109,15 @@ function layerSpec(){
   return L;
 }
 const SPEC=layerSpec();
-// One canonical template, cloned for hero + build preview + every thumbnail so markup lives
-// in exactly one place (ponytail: don't hand-write the same 30 divs 4x).
+// One canonical template, cloned for the hero and the build preview so markup
+// lives in exactly one place (ponytail: don't hand-write the same 30 divs twice).
 const ly=l=>`<div class="ly ${l.cls}" data-slot="${l.slot}" data-id="${l.id}"${
   l.part?` data-part="${l.part}"`:''}>${'<i></i>'.repeat(PIECES[l.id]||0)}</div>`;
 const stackHTML=(cls='')=>`<div class="sw ${cls}" aria-hidden="true"><div class="board"></div><div class="layers">`+
   SPEC.map(l=>l.wrap?`<div class="${l.wrap}">${l.kids.map(ly).join('')}</div>`:ly(l)).join('')+
   `</div></div>`;
 /*
-  ONE sync for the hero, the build preview, all three preset thumbnails and the
-  reveal card. Two optional arguments carry the
+  ONE sync for the hero, the build preview and the reveal card. Two optional arguments carry the
   only two behaviours that differ between them, so the function is never forked:
 
   anim  - which single layer just arrived, as "slot:id" (e.g. "veg:tomato"), or
@@ -191,9 +190,13 @@ Object.assign(ICON,{
  arcL:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">'+
   '<path d="M15.4 3.4C10.6 6.2 8.4 9.2 8.4 12s2.2 5.8 7 8.6" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>'+
   '<path d="M10.8 7.6 3.6 12l7.2 4.4z" fill="currentColor"/></svg>',
+ /* The brand arc, then the arrowhead UNDER it. The head used to start at
+    y=10.8 while the arc dips to 15.6, so it rose through the bowl and the
+    two shapes read as one pierced blob. It now begins below the arc's
+    lowest point, stroke included. */
  arcD:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">'+
   '<path d="M3.4 8.6C6.2 13.4 9.2 15.6 12 15.6s5.8-2.2 8.6-7" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>'+
-  '<path d="M7.6 10.8 12 18l4.4-7.2z" fill="currentColor"/></svg>'
+  '<path d="M8 18.2 12 23.2 16 18.2z" fill="currentColor"/></svg>'
 });
 
 /* ============================ the story, written once ============================ */
@@ -268,8 +271,7 @@ function story(){
     <p class="sub">Slide through, tap one, then change anything you like as you go.</p>
     <div class="presets">${PRESETS.map((p,i)=>`
       <button class="preset" data-preset="${i}">
-        <span class="shot"><img src="${p.shot}" alt="${p.alt}" loading="lazy" width="360" height="217">
-          <span class="thumb">${stackHTML('sm')}</span></span>
+        <span class="shot"><img src="${p.shot}" alt="${p.alt}" loading="lazy" width="360" height="217"></span>
         <span class="foot">${ARC}<b>${p.n}</b><span>${p.d}</span></span>
       </button>`).join('')}</div>
   </section>

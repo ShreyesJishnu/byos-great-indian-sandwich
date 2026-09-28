@@ -179,13 +179,10 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .sw,.sw *{box-sizing:border-box}
 .sw{--s:1;position:relative;width:220px;height:210px;
   flex-shrink:0;  /* every child is position:absolute, so this box has no
-    intrinsic width; a flex parent (.thumb, .row, .preset) would otherwise be
+    intrinsic width; a flex parent would otherwise be
     free to shrink the real layout width toward 0 and break every left:50%
     child. The canonical 220px must stay literal - only scale() may resize it. */
   transform:scale(var(--s));transform-origin:50% 100%}
-/* 52px thumbnail: 52/220, parked on the bottom of its .thumb box */
-.sw.sm{position:absolute;left:50%;bottom:7px;--s:.2364;
-  transform:translateX(-50%) scale(var(--s))}
 
 /* ---------- board ---------- */
 .board{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
@@ -485,8 +482,6 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
   border-radius:var(--r-card) var(--r-card) 0 0;background:var(--cream)}
 .preset .shot img{width:100%;height:100%;object-fit:cover;
   transition:transform .4s var(--ease)}
-.preset .thumb{display:block;position:absolute;right:6px;bottom:6px;width:52px;height:52px;border-radius:10px;
-  background:rgba(253,249,244,.94);overflow:hidden}
 @media (hover:hover){.preset:hover .shot img{transform:scale(1.06)}}
 .preset .foot{display:block;position:relative;background:var(--arcfill);padding:10px 14px 18px;min-height:76px;
   border-radius:0 0 var(--r-card) var(--r-card)}
@@ -522,10 +517,6 @@ h1.on-hero,h2.on-hero{color:var(--hero-ink)}
 .note svg{flex:0 0 auto;margin-top:3px}
 .note b{font-family:var(--font-primary);font-weight:500}
 
-/* 52px thumbnail box. Used by the three preset cards; the base fill, border and
-   clip live here and .preset .thumb only re-places the box. */
-.thumb{position:relative;flex:0 0 52px;width:52px;height:52px;border-radius:10px;
-  background:var(--white);border:1px solid var(--sage);overflow:hidden}
 
 /* ============ form - pill input, a documented extension (spec S11.4) ============ */
 .field{margin-top:var(--s5)}
@@ -908,7 +899,7 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
    both still clear. Verified by measurement at all nine tested sizes.
 
    The worktop shrinks through --s, the same scale hook the width breakpoints
-   already drive, so the 2.5D renderer and the 52px .sw.sm thumbnails are
+   already drive, so the 2.5D renderer is
    untouched. */
 @media (max-height:660px){
   :root{--counterH:clamp(180px,34svh,230px)}
@@ -926,8 +917,7 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
    The canvas takes the whole worktop rather than living inside .sw's 220x210
    box: .sw is scaled by --s from a 50% 100% origin, and a canvas inside that
    would be resampled rather than rendered at size. The CSS stack stays in the
-   DOM underneath - it is what the 52px .sw.sm thumbnails still draw, and what
-   the page falls back to if the context is lost. */
+   DOM underneath: it is what the page falls back to if the context is lost. */
 .glstage{position:absolute;inset:0;z-index:2}
 .glstage canvas{display:block;width:100%;height:100%}
 .counter.gl > .sw,.plate.gl > .sw{display:none}
