@@ -305,14 +305,6 @@ function story(){
     <h2 id="h-fin" tabindex="-1">Your Sandwich</h2>
     <div class="code" id="fincode"></div>
     <div class="tags" id="fintags"></div>
-    <!-- 3D only: the CSS stack has no geometry to cut, so this stays hidden
-         unless the WebGL renderer actually mounted. -->
-    <div class="slicer" id="slicer" role="group" aria-label="How to cut it" hidden>
-      <span class="slicel">Cut it</span>
-      <button type="button" class="cut" data-act="cut" data-cut="none" aria-pressed="true">Whole</button>
-      <button type="button" class="cut" data-act="cut" data-cut="straight" aria-pressed="false">Straight</button>
-      <button type="button" class="cut" data-act="cut" data-cut="diagonal" aria-pressed="false">Diagonal</button>
-    </div>
     <form id="regwrap" novalidate>
       <div class="field">
         <label for="sname">Name your sandwich</label>
@@ -496,12 +488,6 @@ document.addEventListener('click',e=>{
     // so answering the click too would run submit() twice on an invalid form
     case 'submit':  return t.form?undefined:submit();
     case 'share':   return share();
-    case 'cut': {
-      for(const b of document.querySelectorAll('[data-act="cut"]'))
-        b.setAttribute('aria-pressed', String(b===t));
-      VIEW.get(plateSW)?.setSlice(t.dataset.cut);
-      return;
-    }
     case 'restart': location.hash=''; return location.reload();
     case 'reset':
       if(!confirm('Reset prototype data? This deletes your sandwich entry and the details you gave us \u2014 your name, mobile number, email and city \u2014 from this browser. This cannot be undone.')) return;
@@ -757,7 +743,6 @@ async function mount3D(){
     }catch{ stage.remove(); }
   }
   if(!VIEW.size) return;
-  const sl=$('slicer'); if(sl && VIEW.has(plateSW)) sl.hidden=false;
   // the build may already have a pick by the time three finishes parsing
   if(VIEW.has(counterSW)){
     syncStack(counterSW,pick,false,true);

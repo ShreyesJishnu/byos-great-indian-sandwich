@@ -10,13 +10,14 @@
   if (!el) return;
 
   var HERO = 'assets/hero-sandwich.webp';
-  /* One full bounce cycle is 950ms. On a warm cache fonts and hero resolve in
-     tens of ms, so without a floor the overlay flashes and the brand moment -
-     the wordmark in MomentsDisplay, the sandwich bouncing once - never
-     happens. 1100ms is one complete cycle plus a beat to read the line, and
-     short enough not to tax a returning visitor. The 3s timeout is measured
-     from the same t0, so the floor can never push past it. */
-  var MIN = 1100;
+  /* On a warm cache fonts and hero resolve in tens of ms, so without a floor
+     the overlay flashes and the brand moment - the wordmark in MomentsDisplay
+     over the product shot - never happens at all. The floor was 1100ms when
+     the sandwich here bounced on a 950ms loop and the number had to cover a
+     whole cycle; the loader is a still frame now, so it only has to be long
+     enough to read as deliberate rather than as a flicker. The 3s timeout is
+     measured from the same t0, so the floor can never push past it. */
+  var MIN = 800;
   var t0 = performance.now();
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var done = false;

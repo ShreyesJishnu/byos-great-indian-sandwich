@@ -25,7 +25,7 @@
 import {
   WebGLRenderer, Scene, PerspectiveCamera, Group, Box3, Sphere, Vector3, Color,
   DirectionalLight, AmbientLight, AgXToneMapping, SRGBColorSpace,
-  Plane, DoubleSide, FrontSide, Mesh,
+  Mesh,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
@@ -74,7 +74,6 @@ export async function mount(host, opts = {}) {
   // warm every crust by a visible amount against the reference renders
   renderer.toneMapping = AgXToneMapping;
   renderer.toneMappingExposure = manifest.exposure ?? 1;
-  renderer.localClippingEnabled = true;   // the slice is a per-material clip
 
   const scene = new Scene();
   const camera = new PerspectiveCamera(manifest.camera.fov, 1, 0.01, 10);
@@ -114,17 +113,6 @@ export async function mount(host, opts = {}) {
     });
   }
 
-  function applyClip(g, planes) {
-    g.traverse(o => {
-      if (!o.isMesh) return;
-      for (const m of (Array.isArray(o.material) ? o.material : [o.material])) {
-        m.clippingPlanes = planes;
-        // a clipped solid is open at the cut, so the inner wall has to draw
-        m.side = planes ? DoubleSide : FrontSide;
-        m.needsUpdate = true;
-      }
-    });
-  }
 
   /* The scattered layers ship one mesh per piece, which is how they were
      modelled: namkeen is 30 objects, fried onion 15. That is 45 draw calls
@@ -189,13 +177,11 @@ export async function mount(host, opts = {}) {
   const sphere = new Sphere();
   const fwd = new Vector3(), right = new Vector3(), up = new Vector3();
   const corner = new Vector3(), UP = new Vector3(0, 1, 0);
-  let mirror = null, sliceMode = 'none';
   let fitTarget = 1, fitNow = 1, fitted = false;
 
   function refit() {
     if (!root.children.length) return;
     const food = [...live.entries()].filter(([k]) => !k.startsWith('board:')).map(([, g]) => g);
-    if (mirror) food.push(...mirror.children);     // a slice is wider than the stack
     if (!food.length) return;
     /* World matrices are normally refreshed by the render loop, but the loop
        is stopped whenever this stage is off screen - and sync() still runs
@@ -353,7 +339,19 @@ export async function mount(host, opts = {}) {
       const [slot, id, part] = want[n];
       const key = keys[n];
       const file = slot === 'board' ? 'board_wood' : fileFor(slot, id, part);
-      const rise = manifest.layers[file]?.rise ?? 0.01;
+      /* The rise table is art direction, taken from three curated preset
+         stacks where at most two vegetables and one crunch appear. A real
+         build can carry all four of each, and then four toppings are asked to
+         share the gap budgeted for one: chips are 18.9mm tall against a rise
+         of 8, so the next layer starts inside them. The scattered slots take
+         the greater of the table and their own measured height, which keeps
+         the curated look where it applies and stops the pile-up where it does
+         not. Bread, mayo and filling keep the table outright - a mayo layer
+         is meant to sit down inside the bread. */
+      const L = manifest.layers[file] || {};
+      const rise = (slot === 'veg' || slot === 'crunch')
+        ? Math.max(L.rise ?? 0.01, (L.h ?? 0) * 0.7)
+        : (L.rise ?? 0.01);
 
       let g = live.get(key);
       const fresh = !g;
@@ -384,59 +382,23 @@ export async function mount(host, opts = {}) {
       }
       y += rise;
     }
-    if (sliceMode !== 'none') setSlice(sliceMode); else refit();
-    invalidate();
-  }
-
-  /* ---- the slice ---------------------------------------------------------
-     Two halves of one stack, each drawn from the same geometry with the
-     opposite clipping plane and pushed apart along the cut's normal. The
-     mirror shares every buffer with the original - only the materials are
-     cloned - so a slice costs draw calls, not memory. */
-  const GAP = 0.022;
-
-  function setSlice(mode = 'none') {
-    sliceMode = mode;
-    if (mirror) { root.remove(mirror); mirror = null; }
-    for (const [k, g] of live) {
-      applyClip(g, null);
-      g.position.x = 0; g.position.z = 0;
-      void k;
-    }
-    if (mode === 'none') { refit(); invalidate(); return; }
-
-    // straight cut: two rectangles. diagonal: two triangles, corner to corner.
-    const n = mode === 'diagonal'
-      ? new Vector3(1, 0, 1).normalize()
-      : new Vector3(1, 0, 0);
-    const near = new Plane(n.clone(), 0);
-    const far  = new Plane(n.clone().negate(), 0);
-
-    mirror = new Group();
-    for (const [k, g] of live) {
-      if (k.startsWith('board:')) continue;      // the board is not cut
-      applyClip(g, [near]);
-      g.position.addScaledVector(n, GAP);
-      const m = g.clone(true);
-      ownMaterials(m);
-      applyClip(m, [far]);
-      m.position.copy(g.position).addScaledVector(n, -2 * GAP);
-      mirror.add(m);
-    }
-    root.add(mirror);
     refit();
     invalidate();
   }
+
 
   /* The finale replays the whole build, bottom to top, with the lid held back
      so it reads as a lid. Same stagger the CSS version used. */
   function plateDrop() {
     if (reduced()) return;
+    /* The whole sandwich arrives as one object. It used to fall a layer at a
+       time on a 70ms stagger with the lid held back a further 300ms, which
+       meant every layer spent its fall passing through the layers already at
+       rest below it. Dropping them on one clock keeps every gap exactly as
+       the stack defines it, so nothing can intersect anything, and it reads
+       as a finished sandwich being set down rather than rebuilt. */
     const order = [...live.values()];
-    order.forEach((g, i) => {
-      const isLid = g === order[order.length - 1];
-      startDrop(g, i * 0.07 + (isLid ? 0.3 : 0), isLid, g.userData.slot);
-    });
+    order.forEach((g, i) => startDrop(g, 0, i === order.length - 1, null));
   }
 
   /* ---- loop --------------------------------------------------------------
@@ -506,7 +468,7 @@ export async function mount(host, opts = {}) {
   });
 
   return {
-    sync, plateDrop, setSlice,
+    sync, plateDrop,
     // read-only window into the fit maths, for the dev harness
     debug: () => ({
       size: size.toArray().map(v => +v.toFixed(4)),
@@ -523,6 +485,7 @@ export async function mount(host, opts = {}) {
                 programs: renderer.info.programs?.length ?? 0,
                 frame: renderer.info.render.frame },
       falling: falling.size,
+      onScreen, raf, dirty,
       meshesPerLayer: [...live.entries()].map(([k, g]) => {
         let n = 0; g.traverse(o => { if (o.isMesh) n++; }); return [k, n];
       }),

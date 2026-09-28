@@ -1,5 +1,5 @@
 {
-  "_": "Generated from blender/sandwich_assets.blend. Camera, lights and exposure mirror the .blend's own LOOKDEV rig so the browser reads like the render. Rise is how far the NEXT layer sits above this one, in metres, taken from the three PREVIEW_Stacks in the .blend; layers no preset uses are scaled from their bounding box by their family's ratio.",
+  "_": "Generated from blender/sandwich_assets.blend. Camera, lights and exposure mirror the .blend's own LOOKDEV rig. `rise` is how far the NEXT layer sits above this one, in metres, taken from the three PREVIEW_Stacks. `h` is the layer's own measured height: the scattered veg and crunch layers stack on each other in any combination, so they take max(rise, h * 0.7) instead, or four toppings pile into the space the art direction budgeted for one and the pieces intersect.",
   "camera": {
     "fov": 28.84,
     "angle": [
@@ -65,79 +65,104 @@
   "dropHeight": 0.055,
   "layers": {
     "board_wood": {
-      "rise": 0.015
+      "rise": 0.015,
+      "h": 0.016
     },
     "bread_white_bottom": {
-      "rise": 0.0118
+      "rise": 0.0118,
+      "h": 0.013
     },
     "bread_multi_bottom": {
-      "rise": 0.0129
+      "rise": 0.0129,
+      "h": 0.014
     },
     "bread_sour_bottom": {
-      "rise": 0.0148
+      "rise": 0.0148,
+      "h": 0.016
     },
     "bread_pav_bottom": {
-      "rise": 0.0148
+      "rise": 0.0148,
+      "h": 0.016
     },
     "mayo_orig": {
-      "rise": 0.0015
+      "rise": 0.0015,
+      "h": 0.0075
     },
     "mayo_burger": {
-      "rise": 0.002
+      "rise": 0.002,
+      "h": 0.0075
     },
     "mayo_garlic": {
-      "rise": 0.002
+      "rise": 0.002,
+      "h": 0.0075
     },
     "mayo_tandoori": {
-      "rise": 0.002
+      "rise": 0.002,
+      "h": 0.0075
     },
     "filling_aloo": {
-      "rise": 0.01
+      "rise": 0.01,
+      "h": 0.016
     },
     "filling_paneer": {
-      "rise": 0.007
+      "rise": 0.007,
+      "h": 0.009
     },
     "filling_chicken": {
-      "rise": 0.009
+      "rise": 0.009,
+      "h": 0.0106
     },
     "filling_veggies": {
-      "rise": 0.011
+      "rise": 0.011,
+      "h": 0.017
     },
     "veg_lettuce": {
-      "rise": 0.0055
+      "rise": 0.0055,
+      "h": 0.01087
     },
     "veg_tomato": {
-      "rise": 0.004
+      "rise": 0.004,
+      "h": 0.00751
     },
     "veg_cucumber": {
-      "rise": 0.003
+      "rise": 0.003,
+      "h": 0.00553
     },
     "veg_onion": {
-      "rise": 0.004
+      "rise": 0.004,
+      "h": 0.00798
     },
     "crunch_chips": {
-      "rise": 0.008
+      "rise": 0.008,
+      "h": 0.01889
     },
     "crunch_nachos": {
-      "rise": 0.009
+      "rise": 0.009,
+      "h": 0.01844
     },
     "crunch_namkeen": {
-      "rise": 0.004
+      "rise": 0.004,
+      "h": 0.01026
     },
     "crunch_friedonion": {
-      "rise": 0.006
+      "rise": 0.006,
+      "h": 0.01189
     },
     "bread_white_top": {
-      "rise": 0.013
+      "rise": 0.013,
+      "h": 0.013
     },
     "bread_multi_top": {
-      "rise": 0.014
+      "rise": 0.014,
+      "h": 0.014
     },
     "bread_sour_top": {
-      "rise": 0.016
+      "rise": 0.016,
+      "h": 0.016
     },
     "bread_pav_top": {
-      "rise": 0.034
+      "rise": 0.034,
+      "h": 0.034
     }
   }
 }

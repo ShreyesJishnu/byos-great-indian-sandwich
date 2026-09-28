@@ -585,6 +585,11 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
   color:var(--primary);padding:var(--s6) 0 var(--s5)}
 .cue .lbl{font-size:12px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gray-500)}
 .cue .ln{width:1px;height:30px;background:var(--primary)}
+/* The arrow is drawn inside a 24x24 icon box but its glyph starts 8.6px down,
+   so the 6px flex gap rendered as a 14.6px hole between the line and the arrow
+   while the label sat 6px above the line. Pull the box up by its own internal
+   padding and the two gaps read the same. */
+.cue svg{display:block;margin-top:-9px}
 @media (prefers-reduced-motion:no-preference){
   .cue svg{animation:cuedown 2.6s var(--ease) infinite}
 }
@@ -927,20 +932,6 @@ main{padding:0 var(--s4) calc(env(safe-area-inset-bottom) + 40px)}
 .glstage canvas{display:block;width:100%;height:100%}
 .counter.gl > .sw,.plate.gl > .sw{display:none}
 
-/* ---------- the cut ---------- */
-.slicer{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
-  gap:8px;margin-top:var(--s4)}
-.slicel{font-family:var(--font-neutral);font-size:12px;letter-spacing:1.8px;
-  text-transform:uppercase;color:var(--gray-500)}
-.cut{border:1px solid var(--sage);background:var(--white);color:var(--darkgray);
-  border-radius:var(--r-pill);padding:7px 14px;
-  font-family:var(--font-neutral);font-size:13px;line-height:18px;
-  cursor:pointer;transition:background .15s var(--ease),color .15s var(--ease),
-    border-color .15s var(--ease),scale 120ms var(--ease)}
-.cut:active{scale:.97}                        /* the Press Contract */
-.cut[aria-pressed=true]{background:var(--primary);color:var(--primary-ink);
-  border-color:var(--primary)}
-@media (hover:hover){.cut:not([aria-pressed=true]):hover{border-color:var(--primary)}}
 
 /* Skip link: the first focusable thing in the document, invisible until it has
    focus. The builder is a long scroll narrative, so a keyboard user reaching
