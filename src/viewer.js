@@ -432,8 +432,19 @@ export async function mount(host, opts = {}) {
   }
 
   function start() {
-    if (onScreen) return;
-    onScreen = true; invalidate();
+    /* Never return early on an already-true onScreen. The stack can change
+       while this stage is off screen or while the browser is throttling rAF
+       to nothing, and in that window invalidate() sets the dirty flag but
+       cannot schedule a frame. Coming back on screen without re-drawing left
+       the last frame that DID render sitting on the canvas - which is how the
+       finale showed a sandwich with no lid, framed for a smaller stack, while
+       the live state already had both. Re-fit and re-draw unconditionally. */
+    const wasOff = !onScreen;
+    onScreen = true;
+    refit();
+    // arriving framed beats animating a zoom the viewer never showed the start of
+    if (wasOff) fitNow = fitTarget;
+    invalidate();
   }
   function stop() {
     onScreen = false;

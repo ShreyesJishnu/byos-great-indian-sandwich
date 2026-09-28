@@ -22,11 +22,29 @@
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var done = false;
 
+  /* Progress is the real thing, not a fake timer: it steps when a milestone
+     actually resolves. The creep between steps exists so a slow connection
+     never looks frozen, and it is capped below the next milestone so it can
+     never claim progress that has not happened. */
+  var p = 0, target = 0.10;
+  function setP(v) { p = v; el.style.setProperty('--p', v.toFixed(3)); }
+  setP(0);
+  /* A timer, not requestAnimationFrame. rAF is throttled to nothing while a
+     tab is not painting - which is exactly the state a QR scanner's in-app
+     browser can be in on the first frames - and the fill would then jump
+     straight from empty to full. setInterval keeps its own clock, and the
+     CSS transition does the smoothing. */
+  var creep = setInterval(function () {
+    setP(p + (target - p) * 0.09);
+    if (done && p > 0.995) clearInterval(creep);
+  }, 55);
+
   function kill() {
     if (done) return;
     var wait = MIN - (performance.now() - t0);
     if (wait > 0) { setTimeout(kill, wait); return; }
     done = true;
+    setP(1);
     if (reduce) { el.remove(); return; }
     el.addEventListener('transitionend', function () { el.remove(); }, { once: true });
     // belt and braces: transitionend never fires on a backgrounded tab
@@ -43,6 +61,12 @@
   var heroReady = new Promise(function (r) { hero.onload = hero.onerror = r; });
   hero.src = HERO;
 
-  Promise.all([document.fonts ? document.fonts.ready : 0, heroReady]).then(kill);
-  setTimeout(kill, 3000);
+  if (document.fonts) document.fonts.ready.then(function(){ target = Math.max(target, 0.55); });
+  heroReady.then(function(){ target = Math.max(target, 0.85); });
+
+  Promise.all([document.fonts ? document.fonts.ready : 0, heroReady]).then(function(){
+    target = 1;                       // the remaining MIN floor is the fill completing
+    kill();
+  });
+  setTimeout(function(){ target = 1; kill(); }, 3000);
 })();

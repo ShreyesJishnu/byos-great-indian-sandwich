@@ -1,3 +1,5 @@
+@property --p{syntax:'<number>';inherits:true;initial-value:0}
+
 /* ============ ENTRY LOADER ============
    Full-viewport overlay, shown from first paint, removed from the DOM by
    loader.js once fonts + hero are ready (or the 3s hard timeout fires).
@@ -30,8 +32,17 @@
 /* ---------- stage: the hero photograph on a colour fill ---------- */
 .ldstage{position:relative;width:min(280px,78vw);aspect-ratio:800/481;
   border-radius:20px;overflow:hidden;background:#EFDBB2}
-.ldhero{width:100%;height:100%;object-fit:cover;display:block}
+.ldhero{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 
-/* No motion here on purpose. A loader that animates asks the eye to track
-   something while the page is still resolving; a still frame of the product
-   reads as the page already being there. */
+/* The progress read. --p runs 0 to 1 and the grey copy's clip retreats to the
+   right, so colour arrives across the photograph as the page actually loads.
+   Nothing here tracks across the screen: the only thing that moves is the
+   boundary between grey and colour, which IS the progress bar. */
+.ldgray{filter:grayscale(1) brightness(1.06) contrast(.92);
+  clip-path:inset(0 0 0 calc(var(--p, 0) * 100%))}
+
+/* No transition on the clip. A CSS transition needs the compositor to be
+   running, and the compositor is exactly what a browser stops doing while a
+   tab is not painting - which left the boundary frozen at its start value.
+   loader.js steps --p on its own timer instead, so the fill advances on the
+   same clock that measures the loading it is reporting. */

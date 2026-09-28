@@ -136,7 +136,7 @@ const stackHTML=(cls='')=>`<div class="sw ${cls}" aria-hidden="true"><div class=
 const VIEW=new Map();
 function syncStack(root,p,anim,open){
   const v=VIEW.get(root);
-  if(v){ v.sync(p,anim,open); return; }
+  if(v) return v.sync(p,anim,open);   // a promise: the caller may need the stack built
   let landed=false;
   root.querySelectorAll('.ly').forEach(el=>{
     const {slot,id,part}=el.dataset, v=p[slot];
@@ -533,8 +533,10 @@ function finaleCopy(){
 /* The lid lands here and nowhere else: the five steps run open-faced, so closing
    the sandwich is the payoff for reaching the bottom. Same 70ms upward stagger
    as before, with a beat of daylight before the top slice. */
-function plate(){
-  syncStack(plateSW,pick,false,false);
+async function plate(){
+  // await, or plateDrop() runs against whatever the stack held a moment ago -
+  // the lid is the last layer sync adds, so it was the one that missed the fall
+  await syncStack(plateSW,pick,false,false);
   if(reduced()) return;
   const v=VIEW.get(plateSW);
   if(v) return v.plateDrop();
