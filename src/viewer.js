@@ -334,7 +334,7 @@ export async function mount(host, opts = {}) {
       if (!keyset.has(k)) { root.remove(g); falling.delete(g); live.delete(k); }
     }
 
-    let y = 0;
+    let y = 0, bandBase = null, bandRise = 0, bandIndex = 0;
     for (let n = 0; n < want.length; n++) {
       const [slot, id, part] = want[n];
       const key = keys[n];
@@ -353,6 +353,19 @@ export async function mount(host, opts = {}) {
         ? Math.max(L.rise ?? 0.01, (L.h ?? 0) * 0.7)
         : (L.rise ?? 0.01);
 
+      /* Crunch is a handful, not four floors. Given its own rise each, four
+         crunches stacked into 30mm of separate tiers and the top two sat in
+         mid air with nothing under them but gaps - fried onion and namkeen
+         looked like they never landed, because nothing had landed under them.
+         They share one band instead: same base, a 1.2mm nudge each so they
+         interleave rather than z-fight, and the band costs the tallest
+         member's rise once. Vegetables are NOT treated this way; a tomato
+         slice really does sit on top of a cucumber slice. */
+      const inBand = slot === 'crunch';
+      if (inBand && bandBase === null) bandBase = y;
+      const placeY = inBand ? bandBase + bandIndex * 0.0012 : y;
+      if (inBand) { bandRise = Math.max(bandRise, rise); bandIndex++; }
+
       let g = live.get(key);
       const fresh = !g;
       if (fresh) {
@@ -363,10 +376,10 @@ export async function mount(host, opts = {}) {
         live.set(key, g);
         root.add(g);
       }
-      g.userData.restY = y;
+      g.userData.restY = placeY;
       g.userData.slot = slot;
       if (fresh) {
-        g.position.y = y;
+        g.position.y = placeY;
         /* Only something landing on TOP of the stack may fall onto it. Going
            back and changing the bread replaces a layer underneath everything
            already built, and dropping that from the usual height sent a slice
@@ -378,9 +391,15 @@ export async function mount(host, opts = {}) {
         const wanted = anim === 'all' || (anim === `${slot}:${id}` && isTop);
         if (wanted && !reduced()) startDrop(g, 0, true, slot);
       } else if (!falling.has(g)) {
-        g.position.y = y;
+        g.position.y = placeY;
       }
-      y += rise;
+      /* the band is one storey however many things are in it */
+      if (inBand) {
+        const last = n + 1 >= want.length || want[n + 1][0] !== 'crunch';
+        if (last) { y = bandBase + bandRise; bandBase = null; }
+      } else {
+        y += rise;
+      }
     }
     refit();
     invalidate();
